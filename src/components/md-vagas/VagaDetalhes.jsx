@@ -1,4 +1,5 @@
 import RankingCandidatos from './RankingCandidatos';
+import DOMPurify from 'dompurify';
 
 const VagaDetalhes = ({ vaga, onVoltarClick, onTalentoClick }) => {
   return (
@@ -35,9 +36,9 @@ const VagaDetalhes = ({ vaga, onVoltarClick, onTalentoClick }) => {
         </div>
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-3">Descrição da Vaga</h2>
-        <p className="text-gray-700 leading-relaxed">{vaga.descricao}</p>
+      <div className="mb-8 prose max-w-none">
+        <h2 className="text-2xl font-bold text-gray-800 mb-3 not-prose">Descrição da Vaga</h2>
+        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(vaga.descricao) }} />
       </div>
 
       <div className="mb-8">
@@ -53,7 +54,6 @@ const VagaDetalhes = ({ vaga, onVoltarClick, onTalentoClick }) => {
       </div>
 
       <RankingCandidatos vagaId={vaga.id} onTalentoClick={onTalentoClick} />
-      
     </div>
   );
 };

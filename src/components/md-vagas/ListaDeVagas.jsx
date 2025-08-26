@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import DOMPurify from 'dompurify';
 
 const ListaDeVagas = ({ vagas, onVagaClick }) => {
   const ITENS_POR_PAGINA = 6;
@@ -26,7 +27,12 @@ const ListaDeVagas = ({ vagas, onVagaClick }) => {
                   <span className="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full">🏢 {vaga.modelo_trabalho}</span>
                   <span className="bg-green-100 text-green-800 px-2.5 py-1 rounded-full">🏷️ {vaga.nome_area}</span>
                 </div>
-                <p className="text-gray-700 mb-4 line-clamp-3">{vaga.descricao}</p>
+                
+                <div 
+                  className="text-gray-700 mb-4 line-clamp-3 prose"
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(vaga.descricao) }}
+                />
+
                 <div>
                   <strong className="font-medium text-gray-800">Principais Critérios:</strong>
                   <ul className="list-disc list-inside ml-4 mt-2 text-gray-600 space-y-1">
