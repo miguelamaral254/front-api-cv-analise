@@ -1,11 +1,8 @@
-// src/components/md-vagas/VagaDetalhes.jsx
-
 import RankingCandidatos from './RankingCandidatos';
 
 const VagaDetalhes = ({ vaga, onVoltarClick, onTalentoClick }) => {
   return (
     <div className="bg-white shadow-xl rounded-2xl p-6 md:p-10 max-w-4xl w-full mx-auto">
-      {/* ... todo o JSX da descrição da vaga continua o mesmo ... */}
       <div className="flex justify-between items-start mb-8 border-b pb-4">
         <div>
           <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900">{vaga.titulo_vaga}</h1>
@@ -30,6 +27,7 @@ const VagaDetalhes = ({ vaga, onVoltarClick, onTalentoClick }) => {
                   {vaga.modelo_trabalho}
               </span>
           </p>
+          <p><strong className="font-semibold">Área:</strong> {vaga.nome_area}</p>
           <p><strong className="font-semibold">Data de Criação:</strong> {new Date(vaga.criado_em).toLocaleDateString()}</p>
           {vaga.finalizada_em && (
             <p><strong className="font-semibold">Finalizada em:</strong> {new Date(vaga.finalizada_em).toLocaleDateString()}</p>

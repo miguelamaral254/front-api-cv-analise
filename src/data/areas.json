@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "nome": "Tecnologia da Informação",
+    "descricao": "Vagas relacionadas a desenvolvimento de software, infraestrutura, cibersegurança, etc."
+  },
+  {
+    "id": 2,
+    "nome": "Recursos Humanos",
+    "descricao": "Vagas para recrutamento, departamento pessoal, desenvolvimento organizacional e gestão de pessoas."
+  },
+  {
+    "id": 3,
+    "nome": "Marketing e Vendas",
+    "descricao": "Oportunidades para marketing digital, comunicação, vendas B2B/B2C e relacionamento com cliente."
+  },
+  {
+    "id": 4,
+    "nome": "Psicologia",
+    "descricao": "Vagas para psicólogos clínicos, organizacionais e outras especialidades da área."
+  }
+]

@@ -1,11 +1,10 @@
-// src/pages/VagasPage.jsx (Corrigido)
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getVagas } from '../services/vagas.service';
 import { getTalentoById } from '../services/talentos.service';
 import ListaDeVagas from '../components/md-vagas/ListaDeVagas';
 import VagaDetalhes from '../components/md-vagas/VagaDetalhes';
-import TalentoDetalhesModal from '../components/md-talentos/TalentoDetalhesModal'; 
+import TalentoDetalhesModal from '../components/md-talentos/TalentoDetalhesModal';
+import Filtro from '../components/md-vagas/Filtro';
 
 const VagasPage = () => {
   const [vagas, setVagas] = useState([]);
@@ -15,9 +14,18 @@ const VagasPage = () => {
 
   const [talentoSelecionado, setTalentoSelecionado] = useState(null);
   const [isTalentoLoading, setIsTalentoLoading] = useState(false);
+  
+  const [filtros, setFiltros] = useState({
+    termo: '',
+    cidades: [],
+    modelos: [],
+    areaNomes: [],
+    ordenacao: 'recentes'
+  });
 
   useEffect(() => {
     const fetchVagas = async () => {
+      setLoading(true);
       try {
         const data = await getVagas();
         setVagas(data);
@@ -31,6 +39,36 @@ const VagasPage = () => {
       fetchVagas();
     }
   }, [vagaSelecionada]);
+  
+  const cidadesUnicas = useMemo(() => {
+    const cidadesDasVagas = vagas.map(vaga => vaga.cidade).filter(cidade => cidade && cidade !== 'N/A');
+    return [...new Set(cidadesDasVagas)].sort();
+  }, [vagas]);
+
+  const handleFiltroChange = (name, value) => {
+    setFiltros(prevFiltros => ({
+      ...prevFiltros,
+      [name]: value
+    }));
+  };
+  
+  const vagasFiltradas = useMemo(() => {
+    let vagasProcessadas = vagas.filter(vaga => {
+      const matchTermo = filtros.termo ? vaga.titulo_vaga.toLowerCase().includes(filtros.termo.toLowerCase()) : true;
+      const matchCidades = filtros.cidades.length > 0 ? filtros.cidades.includes(vaga.cidade) : true;
+      const matchModelos = filtros.modelos.length > 0 ? filtros.modelos.includes(vaga.modelo_trabalho) : true;
+      const matchAreas = filtros.areaNomes.length > 0 ? filtros.areaNomes.includes(vaga.nome_area) : true;
+      return matchTermo && matchCidades && matchModelos && matchAreas;
+    });
+
+    if (filtros.ordenacao === 'antigas') {
+      vagasProcessadas.sort((a, b) => new Date(a.criado_em) - new Date(b.criado_em));
+    } else {
+      vagasProcessadas.sort((a, b) => new Date(b.criado_em) - new Date(a.criado_em));
+    }
+
+    return vagasProcessadas;
+  }, [vagas, filtros]);
 
   const handleTalentoClick = async (talentoId) => {
     setIsTalentoLoading(true);
@@ -59,8 +97,13 @@ const VagasPage = () => {
       ) : (
         <>
           <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Vagas Abertas</h1>
+          <Filtro 
+            filtros={filtros} 
+            onFiltroChange={handleFiltroChange}
+            cidades={cidadesUnicas}
+          />
           <ListaDeVagas 
-            vagas={vagas} 
+            vagas={vagasFiltradas} 
             onVagaClick={(vaga) => setVagaSelecionada(vaga)} 
           />
         </>
