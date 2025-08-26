@@ -11,8 +11,7 @@ const VagasListagem = () => {
     const fetchVagas = async () => {
       try {
         const data = await getVagas();
-        // O console.log foi adicionado aqui para mostrar os dados brutos da API
-        console.log('Dados da API de vagas:', data); 
+        console.log('Dados da API de vagas:', data);
         setVagas(data);
       } catch (err) {
         setError("Não foi possível carregar as vagas. Tente novamente mais tarde.");
@@ -32,40 +31,34 @@ const VagasListagem = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {vagas.length > 0 ? (
           vagas.map(vaga => (
-            <div 
-              key={vaga.id} 
-              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-200"
+            <div
+              key={vaga.id}
+              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-200 flex flex-col"
             >
-              <h2 className="text-2xl font-semibold mb-2 text-gray-900">{vaga.titulo_vaga}</h2>
-              <p className="text-sm text-gray-500 mb-4">ID da Vaga: {vaga.id}</p>
-              
-              <div className="space-y-2 text-gray-700">
-                <p>
-                  <strong className="font-medium">Anos de experiência:</strong> {vaga.criterios_de_analise.anos_de_experiencia}
-                </p>
-                
-                <div>
-                  <strong className="font-medium">Requisitos obrigatórios:</strong>
-                  <ul className="list-disc list-inside ml-4 mt-1">
-                    {vaga.criterios_de_analise.requisitos_obrigatorios.map((req, index) => (
-                      <li key={index}>{req}</li>
-                    ))}
-                  </ul>
+              <div className="flex-grow">
+                <h2 className="text-2xl font-semibold mb-2 text-gray-900">{vaga.titulo_vaga}</h2>
+
+                {/* Bloco de Informações Adicionado */}
+                <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
+                  <span className="bg-gray-100 px-2.5 py-1 rounded-full">📍 {vaga.cidade}</span>
+                  <span className="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full">🏢 {vaga.modelo_trabalho}</span>
                 </div>
-                
+
+                <p className="text-gray-700 mb-4 line-clamp-3">{vaga.descricao}</p>
+
                 <div>
-                  <strong className="font-medium">Requisitos desejáveis:</strong>
-                  <ul className="list-disc list-inside ml-4 mt-1">
-                    {vaga.criterios_de_analise.requisitos_desejaveis.map((req, index) => (
-                      <li key={index}>{req}</li>
+                  <strong className="font-medium text-gray-800">Principais Critérios:</strong>
+                  <ul className="list-disc list-inside ml-4 mt-2 text-gray-600 space-y-1">
+                    {Object.keys(vaga.criterios_de_analise).map((key) => (
+                      <li key={key}>{key.replace(/_/g, ' ')}</li>
                     ))}
                   </ul>
                 </div>
               </div>
-              
+
               <div className="mt-6 text-right">
-                <Link 
-                  to={`/vagas/${vaga.id}`} 
+                <Link
+                  to={`/vagas/${vaga.id}`}
                   className="inline-block bg-blue-600 text-white px-5 py-2 rounded-lg shadow-sm hover:bg-blue-700 transition-colors duration-200"
                 >
                   Ver Detalhes

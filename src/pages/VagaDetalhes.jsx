@@ -15,7 +15,6 @@ const VagaDetalhes = () => {
         setVaga(data);
       } catch (err) {
         setError("Vaga não encontrada ou erro ao buscar os dados.");
-        console.error("Erro ao buscar detalhes da vaga:", err);
       } finally {
         setLoading(false);
       }
@@ -23,30 +22,59 @@ const VagaDetalhes = () => {
     fetchVaga();
   }, [vagaId]);
 
-  if (loading) return <div className="text-center mt-8">Carregando detalhes da vaga...</div>;
-  if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
+  if (loading) return <div className="text-center mt-8 text-lg font-semibold text-gray-700">Carregando detalhes da vaga...</div>;
+  if (error) return <div className="text-center mt-8 text-lg font-semibold text-red-500">{error}</div>;
+  if (!vaga) return <div className="text-center mt-8 text-lg font-semibold text-gray-500">Vaga não encontrada.</div>;
 
   return (
-    <div className="container mx-auto p-4 bg-white shadow-md rounded-lg">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">{vaga.titulo_vaga}</h1>
-        <Link to="/vagas" className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors">
-          Voltar para a Lista
-        </Link>
-      </div>
-      {vaga ? (
-        <div className="space-y-4 text-gray-700">
-          <p>**ID:** {vaga.id}</p>
-          <p>**Criado em:** {new Date(vaga.criado_em).toLocaleString()}</p>
-          <p>**Finalizada em:** {vaga.finalizada_em ? new Date(vaga.finalizada_em).toLocaleString() : "Em andamento"}</p>
-          <div className="bg-gray-100 p-4 rounded-md">
-            <h2 className="text-xl font-semibold mb-2">Critérios de Análise</h2>
-            <pre className="whitespace-pre-wrap text-sm">{JSON.stringify(vaga.criterios_de_analise, null, 2)}</pre>
+    <div className="container mx-auto p-6 lg:p-10 bg-gray-50 min-h-screen">
+      <div className="bg-white shadow-xl rounded-2xl p-6 md:p-10 max-w-4xl mx-auto">
+        <div className="flex justify-between items-start mb-8 border-b pb-4">
+          <div>
+            <h1 className="text-4xl font-extrabold text-gray-900">{vaga.titulo_vaga}</h1>
+            <p className="text-xl text-gray-500 mt-1">
+              Status: {vaga.finalizada_em ? "Finalizada" : "Em andamento"}
+            </p>
           </div>
+          <Link to="/vagas" className="bg-gray-100 text-gray-600 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium whitespace-nowrap">
+            Voltar para a Lista
+          </Link>
         </div>
-      ) : (
-        <p className="text-red-500 text-center">Vaga não encontrada.</p>
-      )}
+
+        {/* Bloco de Informações Gerais Adicionado */}
+        <div className="bg-gray-100 p-6 rounded-xl mb-8 shadow-inner">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Informações Gerais</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-8 text-gray-700 text-lg">
+                <p><strong className="font-semibold">Localização:</strong> {vaga.cidade}</p>
+                <p><strong className="font-semibold">Modelo:</strong>                   <span className="ml-2 text-sm font-normal text-white bg-blue-500 px-2 py-0.5 rounded-full">
+{vaga.modelo_trabalho}</span></p>
+                <p><strong className="font-semibold">Data de Criação:</strong> {new Date(vaga.criado_em).toLocaleDateString()}</p>
+                {vaga.finalizada_em && (
+                    <p><strong className="font-semibold">Finalizada em:</strong> {new Date(vaga.finalizada_em).toLocaleDateString()}</p>
+                )}
+            </div>
+        </div>
+
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-3">Descrição da Vaga</h2>
+          <p className="text-gray-700 leading-relaxed">{vaga.descricao}</p>
+        </div>
+
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Critérios de Análise</h2>
+          <ul className="space-y-4">
+            {Object.entries(vaga.criterios_de_analise).map(([key, value]) => (
+              <li key={key} className="border-l-4 border-blue-500 pl-4 py-2 bg-gray-50 rounded-r-lg">
+                <p className="text-lg font-semibold text-gray-800">
+                  {key.replace(/_/g, ' ')}
+                 
+                </p>
+                <p className="text-gray-600 mt-1">{value.descricao}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 };

@@ -28,22 +28,23 @@ const TalentosListagem = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Lista de Talentos</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <ul className="divide-y divide-gray-200">
         {talentos.length > 0 ? (
           talentos.map(talento => (
-            <div key={talento.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-              <h2 className="text-2xl font-semibold text-gray-800">{talento.nome}</h2>
-              <p className="text-gray-600 mt-2">**Email:** {talento.email}</p>
-              <p className="text-gray-600">**Vaga ID:** {talento.vaga_id}</p>
-              <Link to={`/talentos/${talento.id}`} className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors">
+            <li key={talento.id} className="py-4 flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-800">{talento.nome}</h2>
+                <p className="text-gray-600">Email: {talento.email}</p>
+              </div>
+              <Link to={`/talentos/${talento.id}`} className="text-blue-500 hover:text-blue-700 font-medium">
                 Ver Detalhes
               </Link>
-            </div>
+            </li>
           ))
         ) : (
-          <p className="text-gray-500 col-span-full text-center">Nenhum talento encontrado.</p>
+          <li className="text-gray-500 text-center py-4">Nenhum talento encontrado.</li>
         )}
-      </div>
+      </ul>
     </div>
   );
 };

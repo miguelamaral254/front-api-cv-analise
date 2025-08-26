@@ -22,13 +22,40 @@ export const getVagaById = async (id) => {
   }
 };
 
-// Exemplo para um endpoint POST
 export const createVaga = async (vagaData) => {
   try {
     const response = await apiClient.post(VAGAS_ENDPOINT, vagaData);
     return response.data;
   } catch (error) {
     console.error('Erro ao criar nova vaga:', error);
+    throw error;
+  }
+};
+
+export const updateVaga = async (id, vagaData) => {
+  try {
+    const response = await apiClient.put(`${VAGAS_ENDPOINT}/${id}`, vagaData);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao atualizar vaga:', error);
+    throw error;
+  }
+};
+export const finalizeVaga = async (id) => {
+  try {
+    await apiClient.post(`${VAGAS_ENDPOINT}/${id}/finalizar`);
+  } catch (error) {
+    console.error('Erro ao finalizar vaga:', error);
+    throw error;
+  }
+};
+export const analyzeVaga = async (id, topCandidates) => {
+  try {
+    const requestBody = { top_candidatos: topCandidates };
+    const response = await apiClient.post(`${VAGAS_ENDPOINT}/${id}/analisar`, requestBody);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao analisar vaga:', error);
     throw error;
   }
 };
