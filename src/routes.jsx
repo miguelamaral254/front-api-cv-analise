@@ -2,19 +2,23 @@ import { Routes, Route } from 'react-router-dom';
 import VagasPage from './pages/VagasPage';
 import TalentosPage from './pages/TalentosPage';
 import FormVagasPage from './pages/FormVagasPage';
+<<<<<<< HEAD
 import FormInscricaoPage from './pages/FormInscricaoPage';
+=======
+import Home from './pages/Home';
+>>>>>>> a5e44549cae6bf69f838c49444d4dbe715fd2134
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<p className="text-xl">Página Inicial. Navegue para <a href="/vagas" className="text-blue-500 hover:underline">/vagas</a> ou <a href="/talentos" className="text-blue-500 hover:underline">/talentos</a>.</p>} />
+      {/* Página inicial mostra o componente Home */}
+      <Route path="/" element={<Home />} />
       <Route path="/vagas" element={<VagasPage />} />
-      <Route path="/vagas/criar" element={<FormVagasPage />} /> 
-
+      <Route path="/vagas/criar" element={<FormVagasPage />} />
       <Route path="/talentos" element={<TalentosPage />} />
       <Route path="/vagas/:vagaId/inscrever" element={<FormInscricaoPage />} />
 
-
+      {/* Rota para páginas não encontradas */}
       <Route path="*" element={<p className="text-red-500 text-xl">Página não encontrada!</p>} />
     </Routes>
   );

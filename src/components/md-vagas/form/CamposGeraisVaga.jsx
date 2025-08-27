@@ -1,3 +1,5 @@
+
+/*
 import { useMemo } from 'react';
 import Select from 'react-select';
 //import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -74,3 +76,4 @@ const CamposGeraisVaga = ({ formData, onInputChange, onSelectChange, onDescricao
 };
 
 export default CamposGeraisVaga;
+*/
