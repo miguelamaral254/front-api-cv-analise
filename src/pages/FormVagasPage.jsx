@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createVaga } from '../services/vagas.service';
-//import CamposGeraisVaga from '../components/md-vagas/form/CamposGeraisVaga';
+import CamposGeraisVaga from '../components/md-vagas/form/CamposGeraisVaga';
 import GerenciadorCriterios from '../components/md-vagas/form/GerenciadorCriterios';
 
 const FormVagasPage = () => {

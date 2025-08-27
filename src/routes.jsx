@@ -2,11 +2,8 @@ import { Routes, Route } from 'react-router-dom';
 import VagasPage from './pages/VagasPage';
 import TalentosPage from './pages/TalentosPage';
 import FormVagasPage from './pages/FormVagasPage';
-<<<<<<< HEAD
 import FormInscricaoPage from './pages/FormInscricaoPage';
-=======
 import Home from './pages/Home';
->>>>>>> a5e44549cae6bf69f838c49444d4dbe715fd2134
 
 const AppRoutes = () => {
   return (
