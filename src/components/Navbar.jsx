@@ -1,16 +1,30 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { NavLink, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import Dropdown from './global/Dropdown';
+
+// MUI Imports
+import Box from '@mui/material/Box';
+import Drawer from '@mui/material/Drawer';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import MenuIcon from '@mui/icons-material/Menu';
+
+// Icons
+import WorkIcon from '@mui/icons-material/Work';
+import PeopleIcon from '@mui/icons-material/People';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+
 import logo from '../assets/logo.png';
 
 const NavBar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  
-  const profileMenuRef = useRef(null);
-  const mobileMenuRef = useRef(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -18,110 +32,107 @@ const NavBar = () => {
   };
 
   const linkClass = ({ isActive }) =>
-    `block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-      isActive 
-        ? "bg-blue-700 text-white" 
-        : "text-gray-300 hover:bg-blue-700 hover:text-white"
+    `px-3 py-2 rounded-md text-base font-medium transition-colors ${
+      isActive ? "bg-blue-700 text-white" : "text-gray-300 hover:bg-blue-700 hover:text-white"
     }`;
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
-        setIsProfileMenuOpen(false);
-      }
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   if (!user) {
     return null;
   }
 
-  return (
-    <header className="bg-gradient-to-b from-blue-900 to-blue-800 text-white shadow-lg sticky top-0 z-40">
-      <div className="mx-auto max-w-7xl px-4">
-        <div className="relative flex h-16 items-center justify-between">
-          
-          {/* Esquerda: Logo */}
-          <div className="flex-shrink-0">
-            <Link to="/vagas">
-              <img src={logo} alt="Logo Cognvox" className="h-8 w-auto" />
-            </Link>
-          </div>
+  const menuNavItems = [
+    { text: 'Vagas', path: '/vagas', icon: <WorkIcon />, adminOnly: false },
+    { text: 'Talentos', path: '/talentos', icon: <PeopleIcon />, adminOnly: false },
+    { text: 'Criar Vaga', path: '/vagas/criar', icon: <AddCircleOutlineIcon />, adminOnly: true },
+    { text: 'Criar Usuário', path: '/users/criar', icon: <PersonAddIcon />, adminOnly: true },
+  ];
 
-          {/* Centro: Navegação Principal (Desktop) */}
-          <nav className="hidden md:flex md:space-x-4">
-            <NavLink to="/vagas" className={linkClass}>Vagas</NavLink>
-            <NavLink to="/talentos" className={linkClass}>Talentos</NavLink>
-            {user.role === 'admin' && (
-              <>
-                <NavLink to="/vagas/criar" className={linkClass}>Criar Vaga</NavLink>
-                <NavLink to="/users/criar" className={linkClass}>Criar Usuário</NavLink>
-              </>
-            )}
-          </nav>
-
-          {/* Direita: Menu de Perfil e Menu Hambúrguer */}
-          <div className="absolute inset-y-0 right-0 flex items-center pr-2 md:static md:inset-auto md:ml-6 md:pr-0">
-            <div className="hidden md:block relative" ref={profileMenuRef}>
-              <button onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} className="p-1 rounded-full hover:bg-blue-700 focus:outline-none">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
-                </svg>
-              </button>
-              {isProfileMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg py-1 ring-1 ring-black ring-opacity-5">
-                  <div className="px-4 py-2 text-sm text-gray-500 border-b">Olá, {user.nome}</div>
-                  <Link to="/configuracoes" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configurações</Link>
-                  <button onClick={handleLogout} className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sair</button>
-                </div>
-              )}
-            </div>
-            <div className="flex md:hidden" ref={mobileMenuRef}>
-              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="inline-flex items-center justify-center rounded-md p-2 hover:bg-blue-700 focus:outline-none">
-                <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
+  const drawerList = (
+    <Box
+      sx={{ width: 270, height: '100%', bgcolor: '#1e3a8a', color: 'white' }}
+      role="presentation"
+      onClick={() => setIsDrawerOpen(false)}
+      onKeyDown={() => setIsDrawerOpen(false)}
+    >
+      <div className="p-4 flex items-center border-b border-blue-700">
+        <img src={logo} alt="Logo Cognvox" className="h-8 w-auto" />
+        <span className="ml-3 text-xl font-bold">Cognvox</span>
       </div>
+      <List>
+        {menuNavItems.map((item) => {
+          if (item.adminOnly && user.role !== 'admin') return null;
+          return (
+            <ListItem key={item.text} disablePadding>
+              <ListItemButton component={NavLink} to={item.path} end={item.path === '/vagas'}>
+                <ListItemIcon sx={{ color: 'white' }}>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
+      </List>
+    </Box>
+  );
 
-      {isMobileMenuOpen && (
-        <div className="md:hidden">
-          <div className="space-y-1 px-2 pb-3 pt-2">
-            <NavLink to="/vagas" className={linkClass}>Vagas</NavLink>
-            <NavLink to="/talentos" className={linkClass}>Talentos</NavLink>
-            {user.role === 'admin' && (
-              <>
+  return (
+    <>
+      <header className="bg-gradient-to-b from-blue-900 to-blue-800 text-white shadow-lg sticky top-0 z-40">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="flex h-16 items-center justify-between">
+            
+            {/* Esquerda: Logo */}
+            <div className="flex-1 flex justify-start">
+              <Link to="/vagas">
+                <img src={logo} alt="Logo Cognvox" className="h-8 w-auto" />
+              </Link>
+            </div>
+
+            {/* Centro: Navegação (Desktop) */}
+            <nav className="hidden md:flex justify-center flex-1">
+              <div className="flex space-x-4">
+                <NavLink to="/vagas" end className={linkClass}>Vagas</NavLink>
+                <NavLink to="/talentos" className={linkClass}>Talentos</NavLink>
                 <NavLink to="/vagas/criar" className={linkClass}>Criar Vaga</NavLink>
-                <NavLink to="/users/criar" className={linkClass}>Criar Usuário</NavLink>
-              </>
-            )}
-            <div className="border-t border-blue-700 pt-4 mt-4">
-              <div className="flex items-center px-3 mb-3">
-                <div className="flex-shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" /></svg>
-                </div>
-                <div className="ml-3">
-                  <div className="text-base font-medium">{user.nome}</div>
-                  <div className="text-sm font-medium text-gray-400">{user.email}</div>
-                </div>
+
+                {user.role === 'admin' && (
+                  <>
+                    <NavLink to="/users/criar" className={linkClass}>Criar Usuário</NavLink>
+                  </>
+                )}
               </div>
-              <div className="space-y-1">
-                <NavLink to="/configuracoes" className={linkClass}>Configurações</NavLink>
-                <button onClick={handleLogout} className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-blue-700 hover:text-white">Sair</button>
+            </nav>
+
+            <div className="flex-1 flex justify-end items-center">
+              <div className="hidden md:block">
+                <Dropdown
+                  buttonText={
+                    <div className="p-1 rounded-full text-white hover:text-gray-200 cursor-pointer">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" /></svg>
+                    </div>
+                  }
+                  content={
+                    <div className="w-48">
+                      <div className="px-3 py-2 text-sm text-gray-500 border-b">Olá, {user.nome}</div>
+                      <Dropdown.Item onClick={() => navigate('/configuracoes')}>Configurações</Dropdown.Item>
+                      <Dropdown.Item onClick={handleLogout}>Sair</Dropdown.Item>
+                    </div>
+                  }
+                />
+              </div>
+              <div className="flex md:hidden">
+                <button onClick={() => setIsDrawerOpen(true)} className="inline-flex items-center justify-center rounded-md p-2 text-gray-200 hover:bg-blue-700 focus:outline-none">
+                  <MenuIcon />
+                </button>
               </div>
             </div>
           </div>
         </div>
-      )}
-    </header>
+      </header>
+      
+      <Drawer anchor="left" open={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}>
+        {drawerList}
+      </Drawer>
+    </>
   );
 };
 
