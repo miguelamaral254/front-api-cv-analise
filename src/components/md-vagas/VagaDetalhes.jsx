@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import RankingCandidatos from './RankingCandidatos';
 import DOMPurify from 'dompurify';
 
@@ -11,12 +12,20 @@ const VagaDetalhes = ({ vaga, onVoltarClick, onTalentoClick }) => {
             Status: {vaga.finalizada_em ? "Finalizada" : "Em andamento"}
           </p>
         </div>
-        <button 
-          onClick={onVoltarClick} 
-          className="bg-gray-100 text-gray-600 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium whitespace-nowrap"
-        >
-          &larr; Voltar para a Lista
-        </button>
+        <div className="flex items-center gap-4 flex-shrink-0">
+          <Link 
+            to={`/vagas/${vaga.id}/inscrever`}
+            className="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition-colors"
+          >
+            Inscrever-se
+          </Link>
+          <button 
+            onClick={onVoltarClick} 
+            className="bg-gray-100 text-gray-600 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium whitespace-nowrap"
+          >
+            &larr; Voltar
+          </button>
+        </div>
       </div>
 
       <div className="bg-gray-100 p-6 rounded-xl mb-8 shadow-inner">
@@ -42,7 +51,7 @@ const VagaDetalhes = ({ vaga, onVoltarClick, onTalentoClick }) => {
       </div>
 
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Critérios de Análise</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Requisitos da Vaga</h2>
         <ul className="space-y-4">
           {Object.entries(vaga.criterios_de_analise).map(([key, value]) => (
             <li key={key} className="border-l-4 border-blue-500 pl-4 py-2 bg-gray-50 rounded-r-lg">
