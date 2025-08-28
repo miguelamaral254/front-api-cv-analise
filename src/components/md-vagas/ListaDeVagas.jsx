@@ -45,7 +45,7 @@ const ListaDeVagas = ({ vagas, onVagaClick }) => {
               <div className="mt-6 text-right">
                 <button
                   onClick={() => onVagaClick(vaga)}
-                  className="inline-block bg-blue-600 text-white px-5 py-2 rounded-lg shadow-sm hover:bg-blue-700 transition-colors duration-200"
+                  className="inline-block bg-blue-600 text-white px-5 py-2 rounded-lg shadow-sm hover:bg-blue-700 transition-colors duration-200 cursor-pointer"
                 >
                   Ver Detalhes
                 </button>

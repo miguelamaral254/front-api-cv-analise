@@ -1,14 +1,10 @@
-// src/components/md-talentos/form/ItemCriterioResposta.jsx
-
 const ItemCriterioResposta = ({ criterioKey, criterio, resposta, onRespostaChange }) => {
   const temResposta = resposta !== undefined && resposta !== "Não possui o critério";
 
   const handleOptionChange = (possuiCriterio) => {
     if (possuiCriterio) {
-      // Se clicar 'Sim', limpa a resposta padrão para o usuário escrever
       onRespostaChange(criterioKey, '');
     } else {
-      // Se clicar 'Não', define a resposta padrão
       onRespostaChange(criterioKey, "Não possui o critério");
     }
   };
@@ -17,7 +13,10 @@ const ItemCriterioResposta = ({ criterioKey, criterio, resposta, onRespostaChang
     <div className="bg-gray-50 p-4 rounded-lg border">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div className="mb-2 sm:mb-0">
-          <p className="font-semibold text-gray-800">{criterio.descricao}</p>
+          
+          {/* A LINHA ABAIXO FOI ALTERADA */}
+          <p className="font-semibold text-gray-800">{criterioKey.replace(/_/g, ' ')}</p>
+          
           <p className="text-sm text-gray-500">Você possui este requisito/experiência?</p>
         </div>
         <div className="flex-shrink-0 flex items-center gap-2">
