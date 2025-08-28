@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
 import RankingCandidatos from './RankingCandidatos';
 import DOMPurify from 'dompurify';
+import { useAuth } from '../../contexts/AuthContext';
 
 const VagaDetalhes = ({ vaga, onVoltarClick, onTalentoClick }) => {
+  const { user } = useAuth();
+
   return (
     <div className="bg-white shadow-xl rounded-2xl p-6 md:p-10 max-w-4xl w-full mx-auto">
       <div className="flex justify-between items-start mb-8 border-b pb-4">
@@ -13,14 +16,14 @@ const VagaDetalhes = ({ vaga, onVoltarClick, onTalentoClick }) => {
           </p>
         </div>
         <div className="flex items-center gap-4 flex-shrink-0">
-          <Link 
+          <Link
             to={`/vagas/${vaga.id}/inscrever`}
             className="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition-colors"
           >
             Inscrever-se
           </Link>
-          <button 
-            onClick={onVoltarClick} 
+          <button
+            onClick={onVoltarClick}
             className="bg-gray-100 text-gray-600 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium whitespace-nowrap"
           >
             &larr; Voltar
@@ -32,10 +35,10 @@ const VagaDetalhes = ({ vaga, onVoltarClick, onTalentoClick }) => {
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Informações Gerais</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-8 text-gray-700 text-lg">
           <p><strong className="font-semibold">Localização:</strong> {vaga.cidade}</p>
-          <p className="flex items-center"><strong className="font-semibold mr-2">Modelo:</strong> 
-              <span className="text-sm font-medium text-white bg-blue-600 px-3 py-1 rounded-full">
-                  {vaga.modelo_trabalho}
-              </span>
+          <p className="flex items-center"><strong className="font-semibold mr-2">Modelo:</strong>
+            <span className="text-sm font-medium text-white bg-blue-600 px-3 py-1 rounded-full">
+              {vaga.modelo_trabalho}
+            </span>
           </p>
           <p><strong className="font-semibold">Área:</strong> {vaga.nome_area}</p>
           <p><strong className="font-semibold">Data de Criação:</strong> {new Date(vaga.criado_em).toLocaleDateString()}</p>
@@ -61,8 +64,10 @@ const VagaDetalhes = ({ vaga, onVoltarClick, onTalentoClick }) => {
           ))}
         </ul>
       </div>
-
-      <RankingCandidatos vagaId={vaga.id} onTalentoClick={onTalentoClick} />
+      
+      {user && (user.role === 'admin' || user.role === 'user1') && (
+        <RankingCandidatos vagaId={vaga.id} onTalentoClick={onTalentoClick} />
+      )}
     </div>
   );
 };

@@ -1,5 +1,4 @@
-// src/pages/FormInscricaoPage.jsx
-
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getVagaById } from '../services/vagas.service';
@@ -9,11 +8,13 @@ import GerenciadorExperiencia from '../components/md-talentos/form/GerenciadorEx
 import ItemCriterioResposta from '../components/md-talentos/form/ItemCriterioResposta';
 import InfoVaga from '../components/md-vagas/InfoVaga';
 import CamposPessoais from '../components/md-talentos/form/CamposPessoais';
+import { useSwal } from '../hooks/useSwal'; // 1. IMPORTE O HOOK
 
 const FormInscricaoPage = () => {
   const { vagaId } = useParams();
   const navigate = useNavigate();
-  
+  const { fireSuccess, fireError } = useSwal(); // 2. INSTANCIE O HOOK
+
   const [vaga, setVaga] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -93,9 +94,19 @@ const FormInscricaoPage = () => {
 
     try {
       await inscreverTalento(payload);
-      alert('Inscrição realizada com sucesso!');
-      navigate(`/vagas`);
+      
+      // 3. SUBSTITUA O ALERT PELA CHAMADA DO HOOK
+      fireSuccess('Inscrição Realizada!', 'Sua candidatura foi enviada com sucesso.')
+        .then((result) => {
+          // O código dentro do .then() só roda DEPOIS que o usuário clica em "OK"
+          if (result.isConfirmed) {
+            navigate(`/vagas`);
+          }
+        });
+
     } catch (err) {
+      // Opcional: usar o fireError do hook também para os erros
+      fireError("Ocorreu um erro!", "Não foi possível enviar sua inscrição. Por favor, tente novamente.");
       setError("Ocorreu um erro ao realizar a inscrição. Tente novamente.");
     } finally {
       setIsSubmitting(false);

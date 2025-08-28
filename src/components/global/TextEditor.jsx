@@ -7,14 +7,14 @@ const TextEditor = ({ value, onChange }) => {
   const saveSelection = () => {
     const selection = window.getSelection();
     if (selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      savedRange.current = range.cloneRange();
+      savedRange.current = selection.getRangeAt(0).cloneRange();
     }
   };
 
   const restoreSelection = () => {
     const selection = window.getSelection();
     if (savedRange.current) {
+      editorRef.current.focus();
       selection.removeAllRanges();
       selection.addRange(savedRange.current);
     }
@@ -22,19 +22,20 @@ const TextEditor = ({ value, onChange }) => {
 
   const handleInput = () => {
     if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
-      saveSelection();
+      const newHtml = editorRef.current.innerHTML;
+      // Apenas atualiza o estado, sem salvar a seleção aqui.
+      onChange(newHtml);
     }
   };
 
-  const applyFormat = (command, value = null) => {
+  const applyFormat = (command, commandValue = null) => {
     restoreSelection();
-    document.execCommand(command, false, value);
+    document.execCommand(command, false, commandValue);
     handleInput();
   };
 
   useEffect(() => {
-    if (editorRef.current) {
+    if (editorRef.current && value !== editorRef.current.innerHTML) {
       editorRef.current.innerHTML = value;
     }
   }, [value]);
@@ -44,50 +45,35 @@ const TextEditor = ({ value, onChange }) => {
       <div className="flex flex-wrap p-2 border-b border-gray-300 gap-1">
         <button
           type="button"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            applyFormat('bold');
-          }}
+          onMouseDown={(e) => { e.preventDefault(); applyFormat('bold'); }}
           className="p-1 font-bold text-gray-700 hover:bg-gray-200 rounded-sm transition-colors duration-200"
         >
           B
         </button>
         <button
           type="button"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            applyFormat('italic');
-          }}
+          onMouseDown={(e) => { e.preventDefault(); applyFormat('italic'); }}
           className="p-1 italic text-gray-700 hover:bg-gray-200 rounded-sm transition-colors duration-200"
         >
           I
         </button>
         <button
           type="button"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            applyFormat('underline');
-          }}
+          onMouseDown={(e) => { e.preventDefault(); applyFormat('underline'); }}
           className="p-1 underline text-gray-700 hover:bg-gray-200 rounded-sm transition-colors duration-200"
         >
           U
         </button>
         <button
           type="button"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            applyFormat('strikeThrough');
-          }}
+          onMouseDown={(e) => { e.preventDefault(); applyFormat('strikeThrough'); }}
           className="p-1 line-through text-gray-700 hover:bg-gray-200 rounded-sm transition-colors duration-200"
         >
           S
         </button>
         <button
           type="button"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            applyFormat('insertUnorderedList');
-          }}
+          onMouseDown={(e) => { e.preventDefault(); applyFormat('insertUnorderedList'); }}
           className="p-1 text-gray-700 hover:bg-gray-200 rounded-sm transition-colors duration-200"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -96,10 +82,7 @@ const TextEditor = ({ value, onChange }) => {
         </button>
         <button
           type="button"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            applyFormat('insertOrderedList');
-          }}
+          onMouseDown={(e) => { e.preventDefault(); applyFormat('insertOrderedList'); }}
           className="p-1 text-gray-700 hover:bg-gray-200 rounded-sm transition-colors duration-200"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -108,10 +91,7 @@ const TextEditor = ({ value, onChange }) => {
         </button>
         <button
           type="button"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            applyFormat('justifyLeft');
-          }}
+          onMouseDown={(e) => { e.preventDefault(); applyFormat('justifyLeft'); }}
           className="p-1 text-gray-700 hover:bg-gray-200 rounded-sm transition-colors duration-200"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -120,10 +100,7 @@ const TextEditor = ({ value, onChange }) => {
         </button>
         <button
           type="button"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            applyFormat('justifyCenter');
-          }}
+          onMouseDown={(e) => { e.preventDefault(); applyFormat('justifyCenter'); }}
           className="p-1 text-gray-700 hover:bg-gray-200 rounded-sm transition-colors duration-200"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -132,10 +109,7 @@ const TextEditor = ({ value, onChange }) => {
         </button>
         <button
           type="button"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            applyFormat('justifyRight');
-          }}
+          onMouseDown={(e) => { e.preventDefault(); applyFormat('justifyRight'); }}
           className="p-1 text-gray-700 hover:bg-gray-200 rounded-sm transition-colors duration-200"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -144,10 +118,7 @@ const TextEditor = ({ value, onChange }) => {
         </button>
         <button
           type="button"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            applyFormat('justifyFull');
-          }}
+          onMouseDown={(e) => { e.preventDefault(); applyFormat('justifyFull'); }}
           className="p-1 text-gray-700 hover:bg-gray-200 rounded-sm transition-colors duration-200"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -171,8 +142,9 @@ const TextEditor = ({ value, onChange }) => {
         ref={editorRef}
         contentEditable="true"
         onInput={handleInput}
-        onMouseUp={saveSelection}
+        onBlur={saveSelection}
         onKeyUp={saveSelection}
+        onMouseUp={saveSelection}
         className="min-h-[150px] p-2 overflow-y-auto outline-none"
       />
     </div>
