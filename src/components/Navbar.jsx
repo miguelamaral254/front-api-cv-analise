@@ -100,6 +100,9 @@ const NavBar = () => {
                 {user.role === 'admin' && (
                   <>
                     <NavLink to="/users/criar" className={linkClass}>Criar Usuário</NavLink>
+                    <NavLink to="/talentos" className={linkClass}>Talentos</NavLink>
+                    <NavLink to="/vagas/criar" className={linkClass}>Criar Vaga</NavLink>
+
                   </>
                 )}
               </div>
