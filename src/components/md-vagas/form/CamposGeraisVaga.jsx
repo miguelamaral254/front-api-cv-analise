@@ -1,10 +1,8 @@
-
 import { useMemo } from 'react';
 import Select from 'react-select';
-//import { CKEditor } from '@ckeditor/ckeditor5-react';
-//import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import areas from '../../../data/areas.json';
 import cidades from '../../../data/cidades.json';
+import TextEditor from '../../global/TextEditor';
 
 const CamposGeraisVaga = ({ formData, onInputChange, onSelectChange, onDescricaoChange }) => {
   const cidadeOptions = useMemo(() => cidades.sort().map(c => ({ value: c, label: c })), []);
@@ -24,13 +22,10 @@ const CamposGeraisVaga = ({ formData, onInputChange, onSelectChange, onDescricao
 
       <div>
         <label className="block text-lg font-semibold text-gray-700 mb-2">Descrição</label>
-        {/*
-        <CKEditor
-          editor={ClassicEditor}
-          data={formData.descricao}
-          onChange={(event, editor) => onDescricaoChange(editor.getData())}
+        <TextEditor
+          value={formData.descricao}
+          onChange={onDescricaoChange}
         />
-          */}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -91,9 +91,12 @@ const NavBar = () => {
             <nav className="hidden md:flex justify-center flex-1">
               <div className="flex space-x-4">
                 <NavLink to="/vagas" end className={linkClass}>Vagas</NavLink>
-                <NavLink to="/talentos" className={linkClass}>Talentos</NavLink>
-                <NavLink to="/vagas/criar" className={linkClass}>Criar Vaga</NavLink>
-
+                {user.role === 'user1' && (
+                  <>
+                    <NavLink to="/talentos" className={linkClass}>Talentos</NavLink>
+                    <NavLink to="/vagas/criar" className={linkClass}>Criar Vaga</NavLink>                 
+                  </>
+                )}
                 {user.role === 'admin' && (
                   <>
                     <NavLink to="/users/criar" className={linkClass}>Criar Usuário</NavLink>
