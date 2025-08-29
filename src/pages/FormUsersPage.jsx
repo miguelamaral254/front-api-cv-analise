@@ -12,6 +12,7 @@ const FormUsersPage = () => {
     email: '',
     role: 'user1',
     password: '',
+    ConfirmPassowrd:''
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,6 +49,15 @@ const FormUsersPage = () => {
     { value: 'user2', label: 'User 2' },
   ], []);
 
+  const [confirmPassword, setConfirmPassword] = useState("");
+const [touchedConfirm, setTouchedConfirm] = useState(false);
+
+const passwordsMatch =
+  formData.password.length > 0 &&
+  confirmPassword.length > 0 &&
+  formData.password === confirmPassword;
+
+
   return (
     <div className="container mx-auto p-4 max-w-lg">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Criar Novo Usuário</h1>
@@ -69,6 +79,37 @@ const FormUsersPage = () => {
         </div>
 
         <div>
+  <label
+    htmlFor="confirmPassword"
+    className="block text-lg font-semibold text-gray-700"
+  >
+    Confirmar senha
+  </label>
+
+  <input
+    type="password"
+    id="confirmPassword"
+    name="confirmPassword"
+    value={confirmPassword}                 // <- usa o estado confirmPassword
+    onChange={(e) => setConfirmPassword(e.target.value)}
+    onBlur={() => setTouchedConfirm(true)}
+    required
+    className={[
+      "mt-1 block w-full p-2 border rounded-md",
+      touchedConfirm
+        ? (passwordsMatch ? "border-green-500" : "border-red-500")
+        : "border-gray-300"
+    ].join(" ")}
+  />
+
+  {touchedConfirm && !passwordsMatch && (
+    <p className="mt-1 text-sm text-red-600">As senhas não coincidem.</p>
+  )}
+  {touchedConfirm && passwordsMatch && (
+    <p className="mt-1 text-sm text-green-600">Senhas conferem.</p>
+  )}
+</div>
+        <div>
           <label htmlFor="role" className="block text-lg font-semibold text-gray-700 mb-1">Role (Permissão)</label>
           <Select
             name="role"
@@ -87,7 +128,6 @@ const FormUsersPage = () => {
             {isSubmitting ? 'Criando...' : 'Criar Usuário'}
           </button>
         </div>
-
       </form>
     </div>
   );
