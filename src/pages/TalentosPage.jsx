@@ -29,7 +29,7 @@ const TalentosPage = () => {
         const data = await getTalentos();
         setTalentos(data);
       } catch (err) {
-        setError("Não foi possível carregar os talentos.");
+        setError("Não foi possível carregar os talentos.",err);
       } finally {
         setLoading(false);
       }
@@ -129,7 +129,7 @@ const TalentosPage = () => {
             onTalentoClick={(talento) => setTalentoSelecionado(talento)}
             mensagemVazio="Nenhum talento encontrado com os filtros aplicados."
           />
-          {paginacao.totalPaginas > 1 && (
+          {paginacao.totalPaginas > 0 && (
             <div className="flex justify-center mt-6">
               <Stack spacing={2}>
                 <Pagination

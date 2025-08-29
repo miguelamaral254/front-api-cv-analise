@@ -6,10 +6,10 @@ const ListaDeTalentos = ({ talentos, colunas, onTalentoClick, mensagemVazio }) =
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white rounded-lg shadow">
-        <thead className="bg-gray-200">
+        <thead className="bg-secondary">
           <tr>
             {colunas.map((coluna, index) => (
-              <th key={index} className="py-3 px-4 text-left font-semibold text-gray-700">
+              <th key={index} className="py-3 px-4 text-left font-semibold text-white">
                 {coluna.header}
               </th>
             ))}

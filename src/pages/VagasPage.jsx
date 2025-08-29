@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom'; // <-- 1. IMPORTE O useNavigate
-import { getVagas } from '../services/vagas.service';
+import { useNavigate } from 'react-router-dom';
+import { getVagas, getVagaById } from '../services/vagas.service';
 import { getTalentoById } from '../services/talentos.service';
 import ListaDeVagas from '../components/md-vagas/ListaDeVagas';
 import VagaDetalhes from '../components/md-vagas/VagaDetalhes';
@@ -12,19 +12,12 @@ const VagasPage = () => {
   const [vagaSelecionada, setVagaSelecionada] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [talentoSelecionado, setTalentoSelecionado] = useState(null);
   const [isTalentoLoading, setIsTalentoLoading] = useState(false);
-  
   const [filtros, setFiltros] = useState({
-    termo: '',
-    cidades: [],
-    modelos: [],
-    areaNomes: [],
-    ordenacao: 'recentes'
+    termo: '', cidades: [], modelos: [], areaNomes: [], ordenacao: 'recentes'
   });
-
-  const navigate = useNavigate(); // <-- 2. INICIALIZE O HOOK
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchVagas = async () => {
@@ -33,7 +26,7 @@ const VagasPage = () => {
         const data = await getVagas();
         setVagas(data);
       } catch (err) {
-        setError("Não foi possível carregar as vagas. Tente novamente mais tarde.");
+        setError("Não foi possível carregar as vagas. Tente novamente mais tarde.",err);
       } finally {
         setLoading(false);
       }
@@ -63,13 +56,11 @@ const VagasPage = () => {
       const matchAreas = filtros.areaNomes.length > 0 ? filtros.areaNomes.includes(vaga.nome_area) : true;
       return matchTermo && matchCidades && matchModelos && matchAreas;
     });
-
     if (filtros.ordenacao === 'antigas') {
       vagasProcessadas.sort((a, b) => new Date(a.criado_em) - new Date(b.criado_em));
     } else {
       vagasProcessadas.sort((a, b) => new Date(b.criado_em) - new Date(a.criado_em));
     }
-
     return vagasProcessadas;
   }, [vagas, filtros]);
 
@@ -80,15 +71,26 @@ const VagasPage = () => {
       const data = await getTalentoById(talentoId);
       setTalentoSelecionado(data);
     } catch (err) {
-      setError("Não foi possível carregar os detalhes do talento.");
+      setError("Não foi possível carregar os detalhes do talento.", err);
     } finally {
       setIsTalentoLoading(false);
     }
   };
 
-  // <-- 3. CRIE A FUNÇÃO DE NAVEGAÇÃO
   const handleListarCandidatos = (vagaId) => {
     navigate(`/vagas/${vagaId}/candidatos`);
+  };
+
+  const handleVagaFinalizada = async () => {
+    if (vagaSelecionada) {
+      try {
+        const vagaAtualizada = await getVagaById(vagaSelecionada.id);
+        setVagaSelecionada(vagaAtualizada);
+      } catch (err) {
+        console.error("Erro ao recarregar dados da vaga:", err);
+        setVagaSelecionada(null);
+      }
+    }
   };
 
   if (loading) return <div className="text-center mt-8 text-gray-600">Carregando vagas...</div>;
@@ -101,7 +103,8 @@ const VagasPage = () => {
           vaga={vagaSelecionada} 
           onVoltarClick={() => setVagaSelecionada(null)}
           onTalentoClick={handleTalentoClick}
-          onListarClick={() => handleListarCandidatos(vagaSelecionada.id)} // <-- 4. PASSE A FUNÇÃO COMO PROP
+          onListarClick={() => handleListarCandidatos(vagaSelecionada.id)}
+          onVagaFinalizada={handleVagaFinalizada}
         />
       ) : (
         <>
@@ -117,7 +120,6 @@ const VagasPage = () => {
           />
         </>
       )}
-
       {isTalentoLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <p className="text-white text-xl">Carregando detalhes do talento...</p>
