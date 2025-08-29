@@ -1,21 +1,24 @@
-// src/pages/FormInscricaoPage.jsx
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getVagaById } from '../services/vagas.service';
 import { inscreverTalento } from '../services/talentos.service';
+import { getIdiomas } from '../services/idiomas.service';
 import GerenciadorDinamico from '../components/md-talentos/form/GerenciadorDinamico';
 import GerenciadorExperiencia from '../components/md-talentos/form/GerenciadorExperiencia';
+import GerenciadorFormacao from '../components/md-talentos/form/GerenciadorFormacao';
 import ItemCriterioResposta from '../components/md-talentos/form/ItemCriterioResposta';
 import InfoVaga from '../components/md-vagas/InfoVaga';
 import CamposPessoais from '../components/md-talentos/form/CamposPessoais';
+import { useSwal } from '../hooks/useSwal';
 
 const FormInscricaoPage = () => {
   const { vagaId } = useParams();
   const navigate = useNavigate();
-  
+  const { fireSuccess, fireError } = useSwal();
+
   const [vaga, setVaga] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [languageOptions, setLanguageOptions] = useState([]);
 
   const [formData, setFormData] = useState({
     nome: '', email: '', estado: '', cidade: '', telefone: '', sobre_mim: '', aceita_termos: false,
@@ -29,22 +32,27 @@ const FormInscricaoPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchVaga = async () => {
+    const fetchDadosIniciais = async () => {
       try {
-        const data = await getVagaById(vagaId);
-        setVaga(data);
+        const vagaData = await getVagaById(vagaId);
+        setVaga(vagaData);
         const respostasIniciais = {};
-        Object.keys(data.criterios_de_analise).forEach(key => {
+        Object.keys(vagaData.criterios_de_analise).forEach(key => {
           respostasIniciais[key] = "Não possui o critério";
         });
         setRespostas(respostasIniciais);
+
+        const idiomasData = await getIdiomas();
+        setLanguageOptions(idiomasData);
+
       } catch (err) {
-        setError("Vaga não encontrada.");
+        console.error("Erro ao buscar dados:", err);
+        setError("Vaga não encontrada ou erro de rede.");
       } finally {
         setLoading(false);
       }
     };
-    fetchVaga();
+    fetchDadosIniciais();
   }, [vagaId]);
 
   const handleInputChange = (e) => {
@@ -93,15 +101,38 @@ const FormInscricaoPage = () => {
 
     try {
       await inscreverTalento(payload);
-      alert('Inscrição realizada com sucesso!');
-      navigate(`/vagas`);
+      fireSuccess('Inscrição Realizada!', 'Sua candidatura foi enviada com sucesso.')
+        .then((result) => {
+          if (result.isConfirmed) {
+            navigate(`/vagas`);
+          }
+        });
     } catch (err) {
+      fireError("Ocorreu um erro!", "Não foi possível enviar sua inscrição. Por favor, tente novamente.");
       setError("Ocorreu um erro ao realizar a inscrição. Tente novamente.");
     } finally {
       setIsSubmitting(false);
     }
   };
   
+  const nivelOptions = [
+    { value: 'A1 - Iniciante', label: 'A1 - Iniciante' },
+    { value: 'A2 - Básico', label: 'A2 - Básico' },
+    { value: 'B1 - Intermediário', label: 'B1 - Intermediário' },
+    { value: 'B2 - Usuário Independente', label: 'B2 - Usuário Independente' },
+    { value: 'C1 - Avançado', label: 'C1 - Avançado' },
+    { value: 'C2 - Proficiente/Nativo', label: 'C2 - Proficiente/Nativo' },
+  ];
+
+  const objetoInicialFormacao = {
+    curso: '',
+    instituicao: '',
+    data_inicio: '',
+    data_fim: '',
+    cursando: false,
+    periodo_atual: '',
+  };
+
   if (loading) return <div className="text-center mt-8">Carregando informações da vaga...</div>;
   if (error && !vaga) return <div className="text-center mt-8 text-red-500">{error}</div>;
 
@@ -122,11 +153,26 @@ const FormInscricaoPage = () => {
             />
 
             <GerenciadorExperiencia itens={experiencias} setItens={setExperiencias} />
-            <GerenciadorDinamico titulo="Formação Acadêmica" itens={formacoes} setItens={setFormacoes} campos={[{name: 'curso', label: 'Curso'}, {name: 'instituicao', label: 'Instituição'}, {name: 'periodo', label: 'Período'}]} objetoInicial={{curso: '', instituicao: '', periodo: ''}} />
-            <GerenciadorDinamico titulo="Idiomas" itens={idiomas} setItens={setIdiomas} campos={[{name: 'idioma', label: 'Idioma'}, {name: 'nivel', label: 'Nível'}]} objetoInicial={{idioma: '', nivel: ''}} />
+            
+            <GerenciadorFormacao 
+                itens={formacoes} 
+                setItens={setFormacoes} 
+                objetoInicial={objetoInicialFormacao} 
+            />
+            
+            <GerenciadorDinamico 
+                titulo="Idiomas" 
+                itens={idiomas} 
+                setItens={setIdiomas} 
+                campos={[
+                    {name: 'idioma', label: 'Idioma', type: 'react-select', options: languageOptions, placeholder: 'Selecione um idioma...'}, 
+                    {name: 'nivel', label: 'Nível', type: 'react-select', options: nivelOptions, placeholder: 'Selecione um nível...'}
+                ]} 
+                objetoInicial={{idioma: '', nivel: ''}} 
+            />
 
             <div className="border-t pt-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Responda aos Critérios da Vaga</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Responda aos pré-requisitos da Vaga</h2>
               <div className="space-y-4">
                   {vaga && Object.entries(vaga.criterios_de_analise).map(([key, criterio]) => (
                       <ItemCriterioResposta key={key} criterioKey={key} criterio={criterio} resposta={respostas[key]} onRespostaChange={handleRespostaChange} />
