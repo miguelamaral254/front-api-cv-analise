@@ -1,4 +1,4 @@
 /* eslint-disable no-unused-vars */
-let btnColor = "#122866"
+let btnColor = ""
 let primaryColor = "#203a8a"
 let corDeFundo = "#ECEFFA" 
