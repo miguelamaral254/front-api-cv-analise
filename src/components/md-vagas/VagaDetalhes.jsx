@@ -84,7 +84,7 @@ const VagaDetalhes = ({ vaga, onVoltarClick, onTalentoClick }) => {
           {Object.entries(vaga.criterios_de_analise).map(([key, value]) => (
             <li key={key} className="border-l-4 border-blue-500 pl-4 py-2 bg-gray-50 rounded-r-lg">
               <p className="text-lg font-semibold text-gray-800">{key.replace(/_/g, ' ')}</p>
-              <p className="text-gray-600 mt-1">{value.descricao}</p>
+              {isRecruiter ? <p className="text-gray-600 mt-1">{value.descricao}</p> : ''}
             </li>
           ))}
         </ul>

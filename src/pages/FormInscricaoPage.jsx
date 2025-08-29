@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getVagaById } from '../services/vagas.service';
 import { inscreverTalento } from '../services/talentos.service';
+import { getIdiomas } from '../services/idiomas.service';
 import GerenciadorDinamico from '../components/md-talentos/form/GerenciadorDinamico';
 import GerenciadorExperiencia from '../components/md-talentos/form/GerenciadorExperiencia';
 import GerenciadorFormacao from '../components/md-talentos/form/GerenciadorFormacao';
@@ -17,6 +18,7 @@ const FormInscricaoPage = () => {
 
   const [vaga, setVaga] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [languageOptions, setLanguageOptions] = useState([]);
 
   const [formData, setFormData] = useState({
     nome: '', email: '', estado: '', cidade: '', telefone: '', sobre_mim: '', aceita_termos: false,
@@ -30,22 +32,27 @@ const FormInscricaoPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchVaga = async () => {
+    const fetchDadosIniciais = async () => {
       try {
-        const data = await getVagaById(vagaId);
-        setVaga(data);
+        const vagaData = await getVagaById(vagaId);
+        setVaga(vagaData);
         const respostasIniciais = {};
-        Object.keys(data.criterios_de_analise).forEach(key => {
+        Object.keys(vagaData.criterios_de_analise).forEach(key => {
           respostasIniciais[key] = "Não possui o critério";
         });
         setRespostas(respostasIniciais);
+
+        const idiomasData = await getIdiomas();
+        setLanguageOptions(idiomasData);
+
       } catch (err) {
-        setError("Vaga não encontrada.");
+        console.error("Erro ao buscar dados:", err);
+        setError("Vaga não encontrada ou erro de rede.");
       } finally {
         setLoading(false);
       }
     };
-    fetchVaga();
+    fetchDadosIniciais();
   }, [vagaId]);
 
   const handleInputChange = (e) => {
@@ -158,8 +165,8 @@ const FormInscricaoPage = () => {
                 itens={idiomas} 
                 setItens={setIdiomas} 
                 campos={[
-                    {name: 'idioma', label: 'Idioma'}, 
-                    {name: 'nivel', label: 'Nível', type: 'select', options: nivelOptions}
+                    {name: 'idioma', label: 'Idioma', type: 'react-select', options: languageOptions, placeholder: 'Selecione um idioma...'}, 
+                    {name: 'nivel', label: 'Nível', type: 'react-select', options: nivelOptions, placeholder: 'Selecione um nível...'}
                 ]} 
                 objetoInicial={{idioma: '', nivel: ''}} 
             />

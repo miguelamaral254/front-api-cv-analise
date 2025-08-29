@@ -18,10 +18,9 @@ const InfoVaga = ({ vaga }) => {
       <div className="border-t pt-4 mt-4">
         <h3 className="text-xl font-bold text-gray-800 mb-4">Pré-requisitos</h3>
         <ul className="space-y-4">
-          {Object.entries(vaga.criterios_de_analise).map(([key, value]) => (
+          {Object.entries(vaga.criterios_de_analise).map(([key]) => (
             <li key={key} className="border-l-4 border-blue-500 pl-4 py-2 bg-gray-50 rounded-r-lg">
               <p className="text-md font-semibold text-gray-800">{key.replace(/_/g, ' ')}</p>
-              <p className="text-gray-600 mt-1 text-sm">{value.descricao}</p>
             </li>
           ))}
         </ul>
