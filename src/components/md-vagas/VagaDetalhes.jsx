@@ -63,6 +63,12 @@ const VagaDetalhes = ({ vaga, onVoltarClick, onListarClick }) => {
               🏷️ {vaga.nome_area}
             </span>
           </p>
+          {vaga.vaga_pcd && (
+             <p className="flex items-center">
+                <strong className="font-semibold mr-2">Inclusão:</strong>
+                <span className="bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full text-sm font-medium">♿ Vaga Afirmativa (PCD)</span>
+             </p>
+          )}
           <p><strong className="font-semibold">Aberta desde:</strong> {new Date(vaga.criado_em).toLocaleDateString()}</p>
           {vaga.finalizada_em && (
             <p><strong className="font-semibold">Finalizada em:</strong> {new Date(vaga.finalizada_em).toLocaleDateString()}</p>
@@ -86,6 +92,20 @@ const VagaDetalhes = ({ vaga, onVoltarClick, onListarClick }) => {
           ))}
         </ul>
       </div>
+
+      {vaga.criterios_diferenciais_de_analise && Object.keys(vaga.criterios_diferenciais_de_analise).length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Diferenciais da Vaga</h2>
+          <ul className="space-y-4">
+            {Object.entries(vaga.criterios_diferenciais_de_analise).map(([key, value]) => (
+              <li key={key} className="border-l-4 border-green-500 pl-4 py-2 bg-green-50 rounded-r-lg">
+                <p className="text-lg font-semibold text-gray-800">{key.replace(/_/g, ' ')}</p>
+                {isRecruiter && <p className="text-gray-600 mt-1">{value.descricao}</p>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

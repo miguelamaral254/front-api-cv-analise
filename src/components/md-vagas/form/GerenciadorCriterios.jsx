@@ -1,6 +1,6 @@
 import ItemCriterio from './ItemCriterio';
 
-const GerenciadorCriterios = ({ criterios, setCriterios }) => {
+const GerenciadorCriterios = ({ title, criterios, setCriterios }) => {
   const handleCriterioChange = (index, e) => {
     const { name, value } = e.target;
     const novosCriterios = [...criterios];
@@ -31,8 +31,8 @@ const GerenciadorCriterios = ({ criterios, setCriterios }) => {
   };
 
   return (
-    <div className="border-t pt-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Critérios de Análise</h2>
+    <div className="border-t pt-8">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">{title}</h2>
       <div className="space-y-4">
         {criterios.map((criterio, index) => (
           <ItemCriterio

@@ -26,6 +26,9 @@ const ListaDeVagas = ({ vagas, onVagaClick }) => {
                   <span className="bg-gray-100 px-2.5 py-1 rounded-full">📍 {vaga.cidade}</span>
                   <span className="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full">🏢 {vaga.modelo_trabalho}</span>
                   <span className="bg-green-100 text-green-800 px-2.5 py-1 rounded-full">🏷️ {vaga.nome_area}</span>
+                  {vaga.vaga_pcd && (
+                    <span className="bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full font-medium">♿ Vaga Afirmativa (PCD)</span>
+                  )}
                 </div>
                 
                 <div 
@@ -36,7 +39,7 @@ const ListaDeVagas = ({ vagas, onVagaClick }) => {
                 <div>
                   <strong className="font-medium text-gray-800">Principais Critérios:</strong>
                   <ul className="list-disc list-inside ml-4 mt-2 text-gray-600 space-y-1">
-                    {Object.keys(vaga.criterios_de_analise).map((key) => (
+                    {Object.keys(vaga.criterios_de_analise).slice(0, 3).map((key) => (
                       <li key={key}>{key.replace(/_/g, ' ')}</li>
                     ))}
                   </ul>

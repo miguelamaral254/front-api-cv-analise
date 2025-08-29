@@ -11,7 +11,14 @@ const TalentosPage = () => {
   const [talentoSelecionado, setTalentoSelecionado] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filtros, setFiltros] = useState({ termo: '', cidades: [] });
+  
+  const initialStateFiltros = {
+    termo: '',
+    cidades: [],
+    vaga_id: '',
+    areaNomes: []
+  };
+  const [filtros, setFiltros] = useState(initialStateFiltros);
   const [paginaAtual, setPaginaAtual] = useState(1);
   const itensPorPagina = 10;
 
@@ -35,8 +42,18 @@ const TalentosPage = () => {
     return [...new Set(cidadesDosTalentos)].sort();
   }, [talentos]);
 
+  const areasUnicas = useMemo(() => {
+    const nomesDasAreas = talentos.map(t => t.nome_area).filter(a => a);
+    return [...new Set(nomesDasAreas)].sort();
+  }, [talentos]);
+
   const handleFiltroChange = (name, value) => {
     setFiltros(prev => ({ ...prev, [name]: value }));
+    setPaginaAtual(1);
+  };
+  
+  const handleLimparFiltros = () => {
+    setFiltros(initialStateFiltros);
     setPaginaAtual(1);
   };
 
@@ -53,7 +70,13 @@ const TalentosPage = () => {
       const matchCidades = filtros.cidades.length > 0
         ? filtros.cidades.includes(talento.cidade)
         : true;
-      return matchTermo && matchCidades;
+      const matchVagaId = filtros.vaga_id
+        ? talento.vaga_id.toString() === filtros.vaga_id
+        : true;
+      const matchAreas = filtros.areaNomes.length > 0
+        ? filtros.areaNomes.includes(talento.nome_area)
+        : true;
+      return matchTermo && matchCidades && matchVagaId && matchAreas;
     });
   }, [talentos, filtros]);
 
@@ -65,14 +88,21 @@ const TalentosPage = () => {
   }, [talentosFiltrados, paginaAtual, itensPorPagina]);
 
   const colunasDaTabela = [
-    { header: 'Nome', accessor: 'nome' },
-    { header: 'Email', accessor: 'email' },
-    { header: 'Cidade', accessor: 'cidade' },
-    { header: 'Telefone', accessor: 'telefone' }
+    { header: "Nome", accessor: "nome" },
+    { header: "Email", accessor: "email" },
+    { header: "Cidade", accessor: "cidade" },
+    { header: "Área", accessor: "nome_area" },
+    { header: "Vaga ID", accessor: "vaga_id" },
   ];
 
-  if (loading) return <div className="text-center mt-8 text-gray-600">Carregando talentos...</div>;
-  if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
+  if (loading)
+    return (
+      <div className="text-center mt-8 text-gray-600">
+        Carregando talentos...
+      </div>
+    );
+  if (error)
+    return <div className="text-center mt-8 text-red-500">{error}</div>;
 
   return (
     <div className="container mx-auto p-4">
@@ -83,11 +113,15 @@ const TalentosPage = () => {
         />
       ) : (
         <>
-          <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Banco de Talentos</h1>
+          <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
+            Banco de Talentos
+          </h1>
           <FiltroTalentos
             filtros={filtros}
             onFiltroChange={handleFiltroChange}
             cidades={cidadesUnicas}
+            areas={areasUnicas}
+            onLimparFiltros={handleLimparFiltros}
           />
           <ListaDeTalentos
             talentos={paginacao.talentosPaginados}
@@ -95,17 +129,17 @@ const TalentosPage = () => {
             onTalentoClick={(talento) => setTalentoSelecionado(talento)}
             mensagemVazio="Nenhum talento encontrado com os filtros aplicados."
           />
-          {paginacao.totalPaginas > 0 && (
-             <div className="flex justify-center mt-6">
-               <Stack spacing={2}>
-                 <Pagination
-                   count={paginacao.totalPaginas}
-                   page={paginaAtual}
-                   onChange={handlePaginaChange}
-                   color="primary"
-                 />
-               </Stack>
-             </div>
+          {paginacao.totalPaginas > 1 && (
+            <div className="flex justify-center mt-6">
+              <Stack spacing={2}>
+                <Pagination
+                  count={paginacao.totalPaginas}
+                  page={paginaAtual}
+                  onChange={handlePaginaChange}
+                  color="primary"
+                />
+              </Stack>
+            </div>
           )}
         </>
       )}

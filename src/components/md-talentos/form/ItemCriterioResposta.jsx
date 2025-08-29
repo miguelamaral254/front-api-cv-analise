@@ -1,4 +1,4 @@
-const ItemCriterioResposta = ({ criterioKey, criterio, resposta, onRespostaChange }) => {
+const ItemCriterioResposta = ({ criterioKey, resposta, onRespostaChange }) => {
   const temResposta = resposta !== undefined && resposta !== "Não possui o critério";
 
   const handleOptionChange = (possuiCriterio) => {

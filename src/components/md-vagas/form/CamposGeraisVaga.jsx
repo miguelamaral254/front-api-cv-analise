@@ -65,6 +65,19 @@ const CamposGeraisVaga = ({ formData, onInputChange, onSelectChange, onDescricao
           />
         </div>
       </div>
+      
+      <div className="mt-4">
+        <label className="flex items-center space-x-3 cursor-pointer">
+          <input
+            type="checkbox"
+            name="vaga_pcd"
+            checked={formData.vaga_pcd}
+            onChange={onInputChange}
+            className="h-5 w-5 rounded border-gray-300 text-secondary focus:ring-secondary"
+          />
+          <span className="text-gray-700 font-medium">Vaga afirmativa para Pessoas com Deficiência (PCD)</span>
+        </label>
+      </div>
     </>
   );
 };
