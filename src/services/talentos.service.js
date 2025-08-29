@@ -32,3 +32,13 @@ export const inscreverTalento = async (talentoData) => {
     throw error;
   }
 };
+
+export const getTalentosByVagaId = async (vagaId) => {
+  try {
+    const response = await apiClient.get(`${TALENTOS_ENDPOINT}/vaga/${vagaId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao buscar talentos para a vaga ${vagaId}:`, error);
+    throw error;
+  }
+};

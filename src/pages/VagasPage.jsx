@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom'; // <-- 1. IMPORTE O useNavigate
 import { getVagas } from '../services/vagas.service';
 import { getTalentoById } from '../services/talentos.service';
 import ListaDeVagas from '../components/md-vagas/ListaDeVagas';
@@ -22,6 +23,8 @@ const VagasPage = () => {
     areaNomes: [],
     ordenacao: 'recentes'
   });
+
+  const navigate = useNavigate(); // <-- 2. INICIALIZE O HOOK
 
   useEffect(() => {
     const fetchVagas = async () => {
@@ -83,6 +86,11 @@ const VagasPage = () => {
     }
   };
 
+  // <-- 3. CRIE A FUNÇÃO DE NAVEGAÇÃO
+  const handleListarCandidatos = (vagaId) => {
+    navigate(`/vagas/${vagaId}/candidatos`);
+  };
+
   if (loading) return <div className="text-center mt-8 text-gray-600">Carregando vagas...</div>;
   if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
 
@@ -93,6 +101,7 @@ const VagasPage = () => {
           vaga={vagaSelecionada} 
           onVoltarClick={() => setVagaSelecionada(null)}
           onTalentoClick={handleTalentoClick}
+          onListarClick={() => handleListarCandidatos(vagaSelecionada.id)} // <-- 4. PASSE A FUNÇÃO COMO PROP
         />
       ) : (
         <>

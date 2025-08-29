@@ -8,6 +8,7 @@ import Home from "../pages/Home";
 import LoginPage from "../pages/LoginPage";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
+import ListaCandidatosPage from "../pages/ListaCandidatosPage";
 
 const AppRoutes = () => {
   return (
@@ -24,12 +25,22 @@ const AppRoutes = () => {
         <Route path="/talentos" element={<TalentosPage />} />
         <Route path="/vagas/criar" element={<FormVagasPage />} />
         <Route
+          path="/vagas/:vagaId/candidatos"
+          element={<ListaCandidatosPage />}
+        />
+
+        <Route
           path="/configuracoes"
           element={<p>Página de Configurações (usuario)</p>}
         />
 
         <Route element={<AdminRoute />}>
           <Route path="/users/criar" element={<FormUsersPage />} />
+          <Route
+            path="/vagas/:vagaId/candidatos"
+            element={<ListaCandidatosPage />}
+          />
+
           <Route
             path="/configuracoes"
             element={<p>Página de Configurações (Admin)</p>}

@@ -1,77 +1,114 @@
+import { MdWork, MdSchool, MdLanguage, MdQuestionAnswer, MdArrowBack } from 'react-icons/md';
+
 const TalentoDetalhes = ({ talento, onVoltarClick }) => {
+
+  // Função auxiliar para formatar datas e períodos
+  const formatarData = (dataString) => {
+    if (!dataString) return 'Data não informada';
+    return new Date(dataString).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  };
+
+  const formatarPeriodoFormacao = (formacao) => {
+    const inicio = formatarData(formacao.data_inicio);
+    if (formacao.cursando) {
+      return `${inicio} - Presente (Cursando ${formacao.periodo_atual}º período)`;
+    }
+    const fim = formatarData(formacao.data_fim);
+    return `${inicio} - ${fim}`;
+  };
+
   return (
-    <div className="bg-white shadow-xl rounded-2xl p-6 md:p-10 max-w-4xl w-full mx-auto">
-      <div className="flex justify-between items-center mb-8 border-b pb-4">
+    <div className="bg-white shadow-xl rounded-2xl p-6 md:p-10 max-w-5xl w-full mx-auto animate-fade-in">
+      <div className="flex justify-between items-start mb-8 border-b pb-4">
         <div>
           <h1 className="text-4xl font-extrabold text-gray-900">{talento.nome}</h1>
           <p className="text-xl text-gray-500 mt-1">{talento.email}</p>
         </div>
-        <button 
-          onClick={onVoltarClick} 
-          className="bg-gray-100 text-gray-600 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium"
+        <button
+          onClick={onVoltarClick}
+          className="flex items-center gap-2 bg-gray-100 text-gray-600 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium"
         >
-          &larr; Voltar para a Lista
+          <MdArrowBack /> Voltar
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 mb-8 text-gray-700 text-lg">
-        <p><span className="font-semibold">Cidade:</span> {talento.cidade || "Não informada"}</p>
-        <p><span className="font-semibold">Telefone:</span> {talento.telefone || "Não informado"}</p>
-        <p><span className="font-semibold">Aplicou na vaga de ID:</span> {talento.vaga_id}</p>
-        <p><span className="font-semibold">Data da aplicação:</span> {new Date(talento.criado_em).toLocaleDateString()}</p>
+        <p><span className="font-semibold text-gray-800">Cidade:</span> {talento.cidade || "Não informada"}</p>
+        <p><span className="font-semibold text-gray-800">Telefone:</span> {talento.telefone || "Não informado"}</p>
+        <p><span className="font-semibold text-gray-800">Aplicou na vaga (ID):</span> {talento.vaga_id}</p>
+        <p><span className="font-semibold text-gray-800">Data da aplicação:</span> {new Date(talento.criado_em).toLocaleDateString()}</p>
       </div>
-      
-      <div className="bg-gray-100 p-6 rounded-xl mb-8 shadow-inner">
+
+      <div className="bg-gray-50 p-6 rounded-xl mb-10 shadow-inner border">
         <h2 className="text-2xl font-bold text-gray-800 mb-3">Sobre Mim</h2>
-        <p className="text-gray-700 leading-relaxed">
+        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
           {talento.sobre_mim || "Não há informações sobre este talento."}
         </p>
       </div>
 
       {talento.experiencia_profissional && talento.experiencia_profissional.length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Experiência Profissional</h2>
-          <ul className="space-y-4">
+        <div className="mb-10">
+          <h2 className="flex items-center text-3xl font-bold text-gray-800 mb-6"><MdWork className="mr-3 text-secondary" /> Experiência Profissional</h2>
+          <ul className="space-y-6 border-l-2 border-gray-200 pl-6">
             {talento.experiencia_profissional.map((exp, index) => (
-              <li key={index} className="border-l-4 border-blue-500 pl-4 py-2">
-                <p className="text-lg font-semibold text-gray-800">{exp.cargo}</p>
-                <p className="text-gray-600">
+              <li key={index} className="relative">
+                <span className="absolute -left-[30px] top-1 h-4 w-4 rounded-full bg-secondary"></span>
+                <p className="text-xl font-semibold text-primary">{exp.cargo}</p>
+                <p className="text-lg text-gray-600">
                   <span className="font-medium">{exp.empresa}</span> | {exp.periodo}
                 </p>
+                <p className="mt-2 text-gray-700 leading-relaxed whitespace-pre-wrap">{exp.descricao}</p>
               </li>
             ))}
           </ul>
         </div>
       )}
 
-      {talento.formacao && talento.formacao.length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Formação</h2>
-          <ul className="space-y-4">
-            {talento.formacao.map((form, index) => (
-              <li key={index} className="border-l-4 border-green-500 pl-4 py-2">
-                <p className="text-lg font-semibold text-gray-800">{form.curso}</p>
-                <p className="text-gray-600">
-                  <span className="font-medium">{form.instituicao}</span> | {form.periodo}
-                </p>
-              </li>
+      {talento.respostas_criterios && Object.keys(talento.respostas_criterios).length > 0 && (
+        <div className="mb-10">
+          <h2 className="flex items-center text-3xl font-bold text-gray-800 mb-6"><MdQuestionAnswer className="mr-3 text-secondary" /> Respostas aos Critérios</h2>
+          <div className="space-y-4">
+            {Object.entries(talento.respostas_criterios).map(([criterio, resposta], index) => (
+              <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <p className="font-semibold text-primary">{criterio.replace(/_/g, ' ')}</p>
+                <p className="text-gray-700 mt-1">{resposta}</p>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       )}
 
-      {talento.idiomas && talento.idiomas.length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Idiomas</h2>
-          <ul className="flex flex-wrap gap-4">
-            {talento.idiomas.map((idioma, index) => (
-              <li key={index} className="bg-purple-100 text-purple-800 px-4 py-1.5 rounded-full font-medium shadow-sm">
-                {idioma.idioma} ({idioma.nivel})
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        {talento.formacao && talento.formacao.length > 0 && (
+          <div className="mb-8">
+            <h2 className="flex items-center text-3xl font-bold text-gray-800 mb-6"><MdSchool className="mr-3 text-secondary" /> Formação</h2>
+            <ul className="space-y-4">
+              {talento.formacao.map((form, index) => (
+                <li key={index} className="border-l-4 border-green-500 pl-4 py-2 bg-green-50 rounded-r-lg">
+                  <p className="text-lg font-semibold text-gray-800">{form.curso}</p>
+                  <p className="text-gray-600">
+                    <span className="font-medium">{form.instituicao}</span>
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">{formatarPeriodoFormacao(form)}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {talento.idiomas && talento.idiomas.length > 0 && (
+          <div className="mb-8">
+            <h2 className="flex items-center text-3xl font-bold text-gray-800 mb-6"><MdLanguage className="mr-3 text-secondary" /> Idiomas</h2>
+            <ul className="flex flex-wrap gap-4">
+              {talento.idiomas.map((idioma, index) => (
+                <li key={index} className="bg-purple-100 text-purple-800 px-4 py-1.5 rounded-full font-medium shadow-sm">
+                  {idioma.idioma} ({idioma.nivel})
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

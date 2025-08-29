@@ -6,7 +6,7 @@ import NavBar from "./components/Navbar.jsx";
 
 function App() {
   return (
-    <div className="">
+    <div className="bg-body">
       <NavBar />
       <AppRoutes />
       <ScrollToTopButton />
