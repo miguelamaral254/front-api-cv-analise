@@ -1,8 +1,10 @@
-import { MdWork, MdSchool, MdLanguage, MdQuestionAnswer, MdArrowBack } from 'react-icons/md';
+import { useState } from 'react';
+import { MdWork, MdSchool, MdLanguage, MdQuestionAnswer, MdArrowBack, MdContentCopy, MdMailOutline } from 'react-icons/md';
+import { FaWhatsapp } from 'react-icons/fa';
 
 const TalentoDetalhes = ({ talento, onVoltarClick }) => {
+  const [copiedText, setCopiedText] = useState('');
 
-  // Função auxiliar para formatar datas e períodos
   const formatarData = (dataString) => {
     if (!dataString) return 'Data não informada';
     return new Date(dataString).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
@@ -17,12 +19,28 @@ const TalentoDetalhes = ({ talento, onVoltarClick }) => {
     return `${inicio} - ${fim}`;
   };
 
+  const handleCopy = (text, type) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedText(type);
+      setTimeout(() => setCopiedText(''), 2000);
+    });
+  };
+
+  const formatPhoneNumberForLink = (phone) => {
+    return phone ? phone.replace(/\D/g, '') : '';
+  };
+
   return (
     <div className="bg-white shadow-xl rounded-2xl p-6 md:p-10 max-w-5xl w-full mx-auto animate-fade-in">
       <div className="flex justify-between items-start mb-8 border-b pb-4">
         <div>
           <h1 className="text-4xl font-extrabold text-gray-900">{talento.nome}</h1>
-          <p className="text-xl text-gray-500 mt-1">{talento.email}</p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-xl text-gray-500">{talento.email}</p>
+            <button onClick={() => handleCopy(talento.email, 'email')} className="p-1 rounded-full hover:bg-gray-200 transition-colors"><MdContentCopy className="text-gray-500" /></button>
+            <a href={`mailto:${talento.email}`} className="p-1 rounded-full hover:bg-gray-200 transition-colors"><MdMailOutline className="text-gray-500" /></a>
+            {copiedText === 'email' && <span className="text-sm text-green-600">Copiado!</span>}
+          </div>
         </div>
         <button
           onClick={onVoltarClick}
@@ -34,7 +52,16 @@ const TalentoDetalhes = ({ talento, onVoltarClick }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 mb-8 text-gray-700 text-lg">
         <p><span className="font-semibold text-gray-800">Cidade:</span> {talento.cidade || "Não informada"}</p>
-        <p><span className="font-semibold text-gray-800">Telefone:</span> {talento.telefone || "Não informado"}</p>
+        <div className="flex items-center gap-2">
+            <span className="font-semibold text-gray-800">Telefone:</span> {talento.telefone || "Não informado"}
+            {talento.telefone && (
+                <>
+                    <button onClick={() => handleCopy(talento.telefone, 'telefone')} className="p-1 rounded-full hover:bg-gray-200 transition-colors"><MdContentCopy className="text-gray-500" /></button>
+                    <a href={`https://wa.me/${formatPhoneNumberForLink(talento.telefone)}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-gray-200 transition-colors"><FaWhatsapp className="text-green-500" /></a>
+                    {copiedText === 'telefone' && <span className="text-sm text-green-600">Copiado!</span>}
+                </>
+            )}
+        </div>
         <p><span className="font-semibold text-gray-800">Aplicou na vaga (ID):</span> {talento.vaga_id}</p>
         <p><span className="font-semibold text-gray-800">Data da aplicação:</span> {new Date(talento.criado_em).toLocaleDateString()}</p>
       </div>

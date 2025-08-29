@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { getTalentos } from '../services/talentos.service';
-import ListaDeTalentos from '../components/md-talentos/ListaDeTalentos';
 import TalentoDetalhes from '../components/md-talentos/TalentoDetalhes';
 import FiltroTalentos from '../components/md-talentos/FiltroTalentos';
+import ListaDeTalentos from '../components/md-talentos/ListaDeTalentos';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
 
@@ -11,10 +11,7 @@ const TalentosPage = () => {
   const [talentoSelecionado, setTalentoSelecionado] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filtros, setFiltros] = useState({
-    termo: '',
-    cidades: []
-  });
+  const [filtros, setFiltros] = useState({ termo: '', cidades: [] });
   const [paginaAtual, setPaginaAtual] = useState(1);
   const itensPorPagina = 10;
 
@@ -25,7 +22,7 @@ const TalentosPage = () => {
         const data = await getTalentos();
         setTalentos(data);
       } catch (err) {
-        setError("Não foi possível carregar os talentos. Tente novamente mais tarde.");
+        setError("Não foi possível carregar os talentos.");
       } finally {
         setLoading(false);
       }
@@ -53,11 +50,9 @@ const TalentosPage = () => {
       const matchTermo = filtros.termo
         ? talento.nome.toLowerCase().includes(termoBusca) || talento.email.toLowerCase().includes(termoBusca)
         : true;
-
       const matchCidades = filtros.cidades.length > 0
         ? filtros.cidades.includes(talento.cidade)
         : true;
-
       return matchTermo && matchCidades;
     });
   }, [talentos, filtros]);
@@ -65,11 +60,16 @@ const TalentosPage = () => {
   const paginacao = useMemo(() => {
     const totalPaginas = Math.ceil(talentosFiltrados.length / itensPorPagina);
     const indiceInicial = (paginaAtual - 1) * itensPorPagina;
-    const indiceFinal = indiceInicial + itensPorPagina;
-    const talentosPaginados = talentosFiltrados.slice(indiceInicial, indiceFinal);
-
+    const talentosPaginados = talentosFiltrados.slice(indiceInicial, indiceInicial + itensPorPagina);
     return { totalPaginas, talentosPaginados };
   }, [talentosFiltrados, paginaAtual, itensPorPagina]);
+
+  const colunasDaTabela = [
+    { header: 'Nome', accessor: 'nome' },
+    { header: 'Email', accessor: 'email' },
+    { header: 'Cidade', accessor: 'cidade' },
+    { header: 'Telefone', accessor: 'telefone' }
+  ];
 
   if (loading) return <div className="text-center mt-8 text-gray-600">Carregando talentos...</div>;
   if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
@@ -83,7 +83,7 @@ const TalentosPage = () => {
         />
       ) : (
         <>
-          <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Talentos Cadastrados</h1>
+          <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Banco de Talentos</h1>
           <FiltroTalentos
             filtros={filtros}
             onFiltroChange={handleFiltroChange}
@@ -91,18 +91,22 @@ const TalentosPage = () => {
           />
           <ListaDeTalentos
             talentos={paginacao.talentosPaginados}
+            colunas={colunasDaTabela}
             onTalentoClick={(talento) => setTalentoSelecionado(talento)}
+            mensagemVazio="Nenhum talento encontrado com os filtros aplicados."
           />
-          <div className="flex justify-center mt-6">
-            <Stack spacing={2}>
-              <Pagination
-                count={paginacao.totalPaginas}
-                page={paginaAtual}
-                onChange={handlePaginaChange}
-                color="primary"
-              />
-            </Stack>
-          </div>
+          {paginacao.totalPaginas > 0 && (
+             <div className="flex justify-center mt-6">
+               <Stack spacing={2}>
+                 <Pagination
+                   count={paginacao.totalPaginas}
+                   page={paginaAtual}
+                   onChange={handlePaginaChange}
+                   color="primary"
+                 />
+               </Stack>
+             </div>
+          )}
         </>
       )}
     </div>

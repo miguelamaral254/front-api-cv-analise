@@ -1,5 +1,3 @@
-// src/components/md-talentos/FiltroTalentos.jsx
-
 import Select from 'react-select';
 import { useMemo } from 'react';
 

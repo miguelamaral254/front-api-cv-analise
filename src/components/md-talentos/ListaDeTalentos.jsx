@@ -1,29 +1,36 @@
-import * as React from 'react';
+const ListaDeTalentos = ({ talentos, colunas, onTalentoClick, mensagemVazio }) => {
+  if (!talentos || talentos.length === 0) {
+    return <p className="text-center text-gray-600 py-10">{mensagemVazio}</p>;
+  }
 
-const ListaDeTalentos = ({ talentos, onTalentoClick }) => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-      <ul className="divide-y divide-gray-200">
-        {talentos.length > 0 ? (
-          talentos.map(talento => (
-            <li key={talento.id} className="py-2 flex justify-between items-center">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-800">{talento.nome}</h2>
-                <p className="text-sm text-gray-600">{talento.email}</p>
-                <p className="text-xs text-gray-500 mt-1">📍 {talento.cidade || 'Não informado'}</p>
-              </div>
-              <button 
-                onClick={() => onTalentoClick(talento)} 
-                className="text-blue-600 hover:text-blue-800 font-medium text-sm"
-              >
-                Ver Detalhes
-              </button>
-            </li>
-          ))
-        ) : (
-          <li className="text-gray-500 text-center py-2">Nenhum talento encontrado.</li>
-        )}
-      </ul>
+    <div className="overflow-x-auto">
+      <table className="min-w-full bg-white rounded-lg shadow">
+        <thead className="bg-gray-200">
+          <tr>
+            {colunas.map((coluna, index) => (
+              <th key={index} className="py-3 px-4 text-left font-semibold text-gray-700">
+                {coluna.header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {talentos.map((talento) => (
+            <tr
+              key={talento.id}
+              className="border-b hover:bg-gray-100 cursor-pointer"
+              onClick={() => onTalentoClick(talento)}
+            >
+              {colunas.map((coluna, index) => (
+                <td key={index} className="py-3 px-4 text-gray-700">
+                  {coluna.render ? coluna.render(talento, index) : talento[coluna.accessor]}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
