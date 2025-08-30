@@ -25,8 +25,7 @@ const LoginPage = () => {
   };
 
   return (
-    /* page */
-    <div className="min-h-screen bg-[#ECEFFA] flex items-center justify-center p-4 sm:p-6 md:pt-12">
+    <div className="min-h-screen bg-body flex items-center justify-center">
       {/* card */}
       <div className="relative w-full max-w-xl sm:max-w-2xl md:max-w-3xl bg-white rounded-[14px] border [border-color:rgba(23,32,74,.2)] shadow-[0_30px_60px_rgba(20,30,70,.40)] overflow-hidden">
         
@@ -37,14 +36,14 @@ const LoginPage = () => {
         <div className="relative z-10 p-6 sm:p-8 md:pr-10 md:w-[calc(100%-120px)] lg:w-[calc(100%-150px)] xl:w-[calc(100%-180px)]">
           <img src={logoOficial} alt="LogoOficial" className="h-[60px] md:h-[72px] mb-4" />
 
-          <h2 className="mb-6 uppercase tracking-wide font-semibold text-[#122866] ml-6">
+          <h2 className="mb-6 uppercase tracking-wide font-semibold text-primary ml-6">
             Carreiras
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4 max-w-sm">
             {/* Email */}
             <div>
-              <label className="block font-bold text-[#122866] text-[0.92rem] mb-1">Email</label>
+              <label className="block font-bold text-primary text-[0.92rem] mb-1">Email</label>
               <input
                 type="email"
                 value={email}
@@ -58,7 +57,7 @@ const LoginPage = () => {
 
             {/* Senha */}
             <div>
-              <label className="block font-bold text-[#122866] text-[0.92rem] mb-1">Senha</label>
+              <label className="block font-bold text-primary text-[0.92rem] mb-1">Senha</label>
               <input
                 type="password"
                 value={password}

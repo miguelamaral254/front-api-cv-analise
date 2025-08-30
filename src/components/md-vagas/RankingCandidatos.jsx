@@ -1,5 +1,3 @@
-// src/components/md-vagas/RankingCandidatos.jsx
-
 import { useState } from 'react';
 import { analyzeVaga } from '../../services/vagas.service';
 

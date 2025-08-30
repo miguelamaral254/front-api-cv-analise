@@ -131,9 +131,11 @@ const NavBar = () => {
                 <NavLink to="/vagas" end className={linkClass}>
                   Vagas
                 </NavLink>
-                <NavLink to="/sobre" className={linkClass}>
+                 {!user && (
+                <NavLink to="https://cognvox.com.br/quem-somos/" target="_blank" className={linkClass}>
                   Sobre a Empresa
                 </NavLink>
+                )}
 
                 {user && (
                   <>
