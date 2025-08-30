@@ -12,7 +12,7 @@ const InputField = ({ id, label, ...props }) => (
 
 export const ProfileForm = ({ onSwitchToPassword }) => {
   const { user, updateUserContext } = useAuth();
-  const { fireToast, fireError } = useSwal();
+  const { fireError, fireSuccess, firePasswordConfirm } = useSwal();
   const [profileData, setProfileData] = useState({ nome: '', email: '' });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -29,15 +29,26 @@ export const ProfileForm = ({ onSwitchToPassword }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSaving(true);
-    try {
-      const updatedUser = await updateUserProfile(user.id, profileData);
-      updateUserContext(updatedUser); 
-      fireToast('success', 'Perfil atualizado com sucesso!');
-    } catch (err) {
-      fireError('Erro!', err?.response?.data?.detail || "Não foi possível atualizar o perfil.");
-    } finally {
-      setIsSaving(false);
+
+    const result = await firePasswordConfirm('Confirmar Alterações', 'Para salvar, insira sua senha atual');
+
+    if (result.isConfirmed && result.value) {
+      setIsSaving(true);
+      try {
+        const payload = { ...profileData, currentPassword: result.value };
+        const updatedUser = await updateUserProfile(user.id, payload);
+        updateUserContext(updatedUser);
+        fireSuccess('Sucesso!', 'Seu perfil foi atualizado.');
+      } catch (err) {
+        const detail = err?.response?.data?.detail;
+        if (detail === "Senha atual incorreta.") {
+            fireError('Senha Inválida', detail);
+        } else {
+            fireError('Erro!', detail || "Não foi possível atualizar o perfil.");
+        }
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 

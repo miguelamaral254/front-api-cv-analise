@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSwal } from "../../hooks/useSwal";
 import { updateUserPassword } from "../../services/users.service";
@@ -15,6 +15,38 @@ const PasswordField = ({ id, label, value, name, onChange }) => {
                     {isVisible ? <MdVisibilityOff size={20} /> : <MdVisibility size={20} />}
                 </button>
             </div>
+        </div>
+    );
+};
+
+const PasswordStrengthMeter = ({ password }) => {
+    const calculateStrength = (pass) => {
+        let score = 0;
+        if (pass.length >= 8) score++;
+        if (/[a-z]/.test(pass)) score++;
+        if (/[A-Z]/.test(pass)) score++;
+        if (/[0-9]/.test(pass)) score++;
+        if (/[^A-Za-z0-9]/.test(pass)) score++;
+        return score;
+    };
+
+    const strength = useMemo(() => {
+        const score = calculateStrength(password);
+        if (score <= 2) return { label: 'Fraca', color: 'bg-red-500', width: 'w-1/3' };
+        if (score <= 4) return { label: 'Média', color: 'bg-orange-500', width: 'w-2/3' };
+        return { label: 'Forte', color: 'bg-green-500', width: 'w-full' };
+    }, [password]);
+
+    if (!password) return null;
+
+    return (
+        <div className="mt-2">
+            <div className="bg-gray-200 rounded-full h-2 w-full">
+                <div className={`h-2 rounded-full transition-all duration-300 ${strength.color} ${strength.width}`}></div>
+            </div>
+            <p className={`text-sm mt-1 font-medium ${strength.color.replace('bg-', 'text-')}`}>
+                Força: {strength.label}
+            </p>
         </div>
     );
 };
@@ -58,7 +90,10 @@ export const PasswordForm = ({ onSwitchToProfile }) => {
             <div className="p-6 md:p-8 space-y-4 border-t">
                 <h2 className="text-xl font-bold text-gray-800 mb-2">Alterar Senha</h2>
                 <PasswordField id="currentPassword" name="currentPassword" label="Senha Atual" value={passwordData.currentPassword} onChange={handleChange} />
-                <PasswordField id="newPassword" name="newPassword" label="Nova Senha" value={passwordData.newPassword} onChange={handleChange} />
+                <div>
+                    <PasswordField id="newPassword" name="newPassword" label="Nova Senha" value={passwordData.newPassword} onChange={handleChange} />
+                    <PasswordStrengthMeter password={passwordData.newPassword} />
+                </div>
                 <PasswordField id="confirmPassword" name="confirmPassword" label="Confirmar Nova Senha" value={passwordData.confirmPassword} onChange={handleChange} />
             </div>
             <div className="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-between items-center">

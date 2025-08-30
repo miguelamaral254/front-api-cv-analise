@@ -55,5 +55,27 @@ export const useSwal = () => {
     });
   };
   
-  return { fireSuccess, fireError, fireToast, fireConfirm };
+  const firePasswordConfirm = (title, inputLabel) => {
+    return Swal.fire({
+        title: title || 'Confirmar Alteração',
+        input: 'password',
+        inputLabel: inputLabel || 'Para prosseguir, insira sua senha atual',
+        inputPlaceholder: 'Sua senha atual',
+        inputAttributes: {
+            autocapitalize: 'off',
+            autocorrect: 'off'
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+        preConfirm: (password) => {
+            if (!password) {
+                Swal.showValidationMessage(`A senha é obrigatória para confirmar.`);
+            }
+            return password;
+        }
+    });
+  };
+  
+  return { fireSuccess, fireError, fireToast, fireConfirm, firePasswordConfirm };
 };
