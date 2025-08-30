@@ -23,6 +23,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 
 import logo from "../assets/logo.png";
 
+
+
 const NavBar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -143,6 +145,7 @@ const NavBar = () => {
                     <NavLink to="/vagas/criar" className={linkClass}>
                       Criar Vaga
                     </NavLink>
+                    
                     {user.role === "admin" && (
                       <NavLink to="/users/criar" className={linkClass}>
                         Criar Usuário

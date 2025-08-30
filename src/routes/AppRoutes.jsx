@@ -8,6 +8,7 @@ import Home from "../pages/Home";
 import LoginPage from "../pages/LoginPage";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
+import Configuracoes from "../pages/Configuracoes";
 import ListaCandidatosPage from "../pages/ListaCandidatosPage";
 
 const AppRoutes = () => {
@@ -24,6 +25,8 @@ const AppRoutes = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/talentos" element={<TalentosPage />} />
         <Route path="/vagas/criar" element={<FormVagasPage />} />
+
+        <Route path="/Configuracoes" element={<Configuracoes/>} />
         <Route
           path="/vagas/:vagaId/candidatos"
           element={<ListaCandidatosPage />}
@@ -37,6 +40,7 @@ const AppRoutes = () => {
         <Route element={<AdminRoute />}>
           <Route path="/users/criar" element={<FormUsersPage />} />
           <Route
+            path="/Configuracoes"
             path="/vagas/:vagaId/candidatos"
             element={<ListaCandidatosPage />}
           />
