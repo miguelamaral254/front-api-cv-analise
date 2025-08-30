@@ -21,8 +21,6 @@ export const getTalentoById = async (id) => {
     throw error;
   }
 };
-
-// Exemplo para um endpoint POST
 export const inscreverTalento = async (talentoData) => {
   try {
     const response = await apiClient.post(TALENTOS_ENDPOINT, talentoData);
@@ -39,6 +37,34 @@ export const getTalentosByVagaId = async (vagaId) => {
     return response.data;
   } catch (error) {
     console.error(`Erro ao buscar talentos para a vaga ${vagaId}:`, error);
+    throw error;
+  }
+};
+export const addComment = async (talentoId, commentData) => {
+  try {
+    const response = await apiClient.post(`/talentos/${talentoId}/comentarios`, commentData);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao adicionar comentário:', error);
+    throw error;
+  }
+};
+
+export const deleteComment = async (commentId) => {
+  try {
+    await apiClient.delete(`/talentos/comentarios/${commentId}`);
+  } catch (error) {
+    console.error('Erro ao excluir comentário:', error);
+    throw error;
+  }
+};
+
+export const reprovarCandidato = async (talentoId) => {
+  try {
+    const response = await apiClient.patch(`${TALENTOS_ENDPOINT}/${talentoId}/status`, { ativo: false });
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao reprovar candidato ${talentoId}:`, error);
     throw error;
   }
 };

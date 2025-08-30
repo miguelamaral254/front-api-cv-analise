@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { getTalentos } from '../services/talentos.service';
+import { getTalentos, getTalentoById } from '../services/talentos.service';
 import TalentoDetalhes from '../components/md-talentos/TalentoDetalhes';
 import FiltroTalentos from '../components/md-talentos/FiltroTalentos';
 import ListaDeTalentos from '../components/md-talentos/ListaDeTalentos';
@@ -29,7 +29,7 @@ const TalentosPage = () => {
         const data = await getTalentos();
         setTalentos(data);
       } catch (err) {
-        setError("Não foi possível carregar os talentos.",err);
+        setError("Não foi possível carregar os talentos.", err);
       } finally {
         setLoading(false);
       }
@@ -59,6 +59,19 @@ const TalentosPage = () => {
 
   const handlePaginaChange = (event, value) => {
     setPaginaAtual(value);
+  };
+
+  const handleTalentoClick = async (talentoSummary) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const dataCompleta = await getTalentoById(talentoSummary.id);
+      setTalentoSelecionado(dataCompleta);
+    } catch (err) {
+      setError("Não foi possível carregar os detalhes do talento.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const talentosFiltrados = useMemo(() => {
@@ -98,7 +111,7 @@ const TalentosPage = () => {
   if (loading)
     return (
       <div className="text-center mt-8 text-gray-600">
-        Carregando talentos...
+        Carregando...
       </div>
     );
   if (error)
@@ -110,6 +123,7 @@ const TalentosPage = () => {
         <TalentoDetalhes
           talento={talentoSelecionado}
           onVoltarClick={() => setTalentoSelecionado(null)}
+          onTalentoUpdate={setTalentoSelecionado}
         />
       ) : (
         <>
@@ -126,10 +140,10 @@ const TalentosPage = () => {
           <ListaDeTalentos
             talentos={paginacao.talentosPaginados}
             colunas={colunasDaTabela}
-            onTalentoClick={(talento) => setTalentoSelecionado(talento)}
+            onTalentoClick={handleTalentoClick}
             mensagemVazio="Nenhum talento encontrado com os filtros aplicados."
           />
-          {paginacao.totalPaginas > 0 && (
+          {paginacao.totalPaginas > 1 && (
             <div className="flex justify-center mt-6">
               <Stack spacing={2}>
                 <Pagination

@@ -11,18 +11,15 @@ import Stack from '@mui/material/Stack';
 const ListaCandidatosPage = () => {
     const { vagaId } = useParams();
     const navigate = useNavigate();
-
     const [talentos, setTalentos] = useState([]);
     const [ranking, setRanking] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [topCandidatos, setTopCandidatos] = useState(10);
-    
     const [talentoSelecionado, setTalentoSelecionado] = useState(null);
     const [isTalentoLoading, setIsTalentoLoading] = useState(false);
     const [error, setError] = useState(null);
-
     const [paginaAtual, setPaginaAtual] = useState(1);
     const itensPorPagina = 10;
 
