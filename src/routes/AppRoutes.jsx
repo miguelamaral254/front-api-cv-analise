@@ -40,7 +40,6 @@ const AppRoutes = () => {
         <Route element={<AdminRoute />}>
           <Route path="/users/criar" element={<FormUsersPage />} />
           <Route
-            path="/Configuracoes"
             path="/vagas/:vagaId/candidatos"
             element={<ListaCandidatosPage />}
           />

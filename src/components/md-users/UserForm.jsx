@@ -73,7 +73,7 @@ export const UserForm = ({ onSuccess }) => {
         }
         setIsSubmitting(true);
         try {
-            const { confirmPassword, ...userData } = formData;
+            const { ...userData } = formData;
             await createUser(userData);
             fireSuccess('Sucesso!', 'Usuário criado com sucesso!')
               .then(() => onSuccess());

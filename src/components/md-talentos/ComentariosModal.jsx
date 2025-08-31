@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useSwal } from '../../hooks/useSwal';
 import { addComment, deleteComment } from '../../services/talentos.service';
 import { MdClose, MdSend, MdDelete } from 'react-icons/md';
+import { CgSpinner } from 'react-icons/cg';
 
 const ComentariosModal = ({ talento, onClose, onDataChange }) => {
   const { user } = useAuth();
@@ -27,7 +28,7 @@ const ComentariosModal = ({ talento, onClose, onDataChange }) => {
       await addComment(talento.id, { texto: novoComentario });
       fireToast('success', 'Comentário adicionado!');
       setNovoComentario('');
-      onDataChange(); // Atualiza os dados no componente pai
+      onDataChange();
     } catch (err) {
       fireError('Erro!', 'Não foi possível adicionar o comentário.');
     } finally {
@@ -41,62 +42,75 @@ const ComentariosModal = ({ talento, onClose, onDataChange }) => {
       try {
         await deleteComment(commentId);
         fireToast('success', 'Comentário excluído.');
-        onDataChange(); // Atualiza os dados no componente pai
+        onDataChange();
       } catch (err) {
-        fireError('Erro!', 'Não foi possível excluir o comentário.');
+        fireError('Erro!', err?.response?.data?.detail || 'Não foi possível excluir o comentário.');
       }
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-fade-in-up">
-        <header className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-2xl font-bold text-gray-800">Comentários</h2>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-[60] p-4 animate-fade-in"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className="flex justify-between items-center p-4 border-b flex-shrink-0">
+          <h2 className="text-2xl font-bold text-gray-800">Comentários sobre {talento.nome.split(' ')[0]}</h2>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
             <MdClose size={24} />
           </button>
         </header>
 
-        <div className="p-6 flex-grow overflow-y-auto space-y-4">
-          {talento.comentarios && talento.comentarios.length > 0 ? (
+        <div className="p-6 flex-grow overflow-y-auto space-y-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          {talento.comentarios?.length > 0 ? (
             talento.comentarios.map(comentario => (
-              <div key={comentario.id} className="bg-gray-50 p-4 rounded-lg">
+              <div key={comentario.id} className="bg-gray-50 p-4 rounded-lg border">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-bold text-gray-900">{comentario.user_nome}</p>
+                    <p className="font-semibold text-gray-900">{comentario.user_nome}</p>
                     <p className="text-xs text-gray-500">{formatarDataHora(comentario.criado_em)}</p>
                   </div>
-                  {user && user.id === comentario.user_id && (
-                    <button onClick={() => handleDeleteComment(comentario.id)} className="text-red-500 hover:text-red-700">
-                      <MdDelete size={20} />
+                  {user && (user.role === 'admin' || user.id === comentario.user_id) && (
+                    <button 
+                      onClick={() => handleDeleteComment(comentario.id)} 
+                      className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                      aria-label="Excluir comentário"
+                    >
+                      <MdDelete size={18} />
                     </button>
                   )}
                 </div>
-                <p className="text-gray-700 mt-2 break-words">{comentario.texto}</p>
+                <p className="text-gray-700 mt-2 break-words whitespace-pre-wrap">{comentario.texto}</p>
               </div>
             ))
           ) : (
-            <p className="text-center text-gray-500">Nenhum comentário ainda.</p>
+            <div className="flex justify-center items-center h-full">
+                <p className="text-center text-gray-500">Nenhum comentário ainda.</p>
+            </div>
           )}
         </div>
 
-        <footer className="p-4 border-t">
+        <footer className="p-4 border-t bg-gray-50 rounded-b-xl flex-shrink-0">
           <form onSubmit={handleAddComment} className="flex items-start gap-3">
             <textarea
               value={novoComentario}
               onChange={(e) => setNovoComentario(e.target.value)}
               placeholder="Adicionar um comentário..."
-              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent resize-none"
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent resize-none transition-colors"
               rows="2"
               disabled={isSubmitting}
             />
             <button
               type="submit"
               disabled={isSubmitting || !novoComentario.trim()}
-              className="bg-secondary text-white p-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="bg-secondary text-white p-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+              aria-label="Enviar comentário"
             >
-              <MdSend size={24} />
+              {isSubmitting ? <CgSpinner className="animate-spin" size={24} /> : <MdSend size={24} />}
             </button>
           </form>
         </footer>
