@@ -1,0 +1,7 @@
+[
+    { "name": "LinkedIn", "icon": "FaLinkedin" },
+    { "name": "GitHub", "icon": "FaGithub" },
+    { "name": "Facebook", "icon": "FaFacebook" },
+    { "name": "Instagram", "icon": "FaInstagram" },
+    { "name": "Twitter", "icon": "FaTwitter" }
+  ]

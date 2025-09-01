@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useSwal } from '../../hooks/useSwal';
 import { getTalentoById, reprovarCandidato } from '../../services/talentos.service';
 import { MdWork, MdSchool, MdLanguage, MdQuestionAnswer, MdArrowBack, MdContentCopy, MdMailOutline, MdOutlineBookmarks, MdLocationOn, MdCalendarToday, MdFlag, MdComment, MdThumbDown, MdInfoOutline } from 'react-icons/md';
-import { FaWhatsapp, FaGlobe, FaStar, FaWheelchair } from 'react-icons/fa';
+import * as FaIcons from 'react-icons/fa';
 import ComentariosModal from './ComentariosModal';
 
 const TalentoDetalhes = ({ talento, onVoltarClick, onTalentoUpdate }) => {
@@ -12,6 +12,11 @@ const TalentoDetalhes = ({ talento, onVoltarClick, onTalentoUpdate }) => {
   const { user } = useAuth();
   const { fireConfirm, fireToast, fireError } = useSwal();
   const isRecruiter = user && (user.role === 'admin' || user.role === 'user1');
+
+  const getSocialIcon = (iconName) => {
+    const IconComponent = FaIcons[iconName];
+    return IconComponent ? <IconComponent /> : <FaIcons.FaLink />;
+  };
 
   const formatarData = (dataString) => {
     if (!dataString) return 'Data não informada';
@@ -91,7 +96,7 @@ const TalentoDetalhes = ({ talento, onVoltarClick, onTalentoUpdate }) => {
               {talento.telefone && (
                 <>
                   <button onClick={() => handleCopy(talento.telefone, 'telefone')} className="p-1 rounded-full hover:bg-gray-200 transition-colors"><MdContentCopy className="text-gray-500" /></button>
-                  <a href={`https://wa.me/${formatPhoneNumberForLink(talento.telefone)}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-gray-200 transition-colors"><FaWhatsapp className="text-green-500" /></a>
+                  <a href={`https://wa.me/${formatPhoneNumberForLink(talento.telefone)}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-gray-200 transition-colors"><FaIcons.FaWhatsapp className="text-green-500" /></a>
                   {copiedText === 'telefone' && <span className="text-sm text-green-600 animate-pulse">Copiado!</span>}
                 </>
               )}
@@ -160,7 +165,7 @@ const TalentoDetalhes = ({ talento, onVoltarClick, onTalentoUpdate }) => {
 
             {talento.respostas_diferenciais && Object.keys(talento.respostas_diferenciais).length > 0 && (
               <div>
-                <h2 className="flex items-center text-2xl font-bold text-gray-800 mb-5"><FaStar className="mr-3 text-green-500" /> Respostas aos Diferenciais</h2>
+                <h2 className="flex items-center text-2xl font-bold text-gray-800 mb-5"><FaIcons.FaStar className="mr-3 text-green-500" /> Respostas aos Diferenciais</h2>
                 <div className="space-y-4">
                   {Object.entries(talento.respostas_diferenciais).map(([criterio, resposta]) => (
                     <div key={criterio} className="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -176,7 +181,7 @@ const TalentoDetalhes = ({ talento, onVoltarClick, onTalentoUpdate }) => {
           <div className="lg:col-span-1 space-y-10 mt-10 lg:mt-0">
             {talento.deficiencia_detalhes?.length > 0 && (
               <div>
-                <h2 className="flex items-center text-2xl font-bold text-gray-800 mb-5"><FaWheelchair className="mr-3 text-secondary" /> Acessibilidade</h2>
+                <h2 className="flex items-center text-2xl font-bold text-gray-800 mb-5"><FaIcons.FaWheelchair className="mr-3 text-secondary" /> Acessibilidade</h2>
                 <div className="space-y-4">
                   {talento.deficiencia_detalhes.map((detalhe, index) => (
                     <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
@@ -232,12 +237,13 @@ const TalentoDetalhes = ({ talento, onVoltarClick, onTalentoUpdate }) => {
 
             {talento.redes_sociais?.length > 0 && (
               <div>
-                <h2 className="flex items-center text-2xl font-bold text-gray-800 mb-5"><FaGlobe className="mr-3 text-secondary" /> Redes e Portfólios</h2>
+                <h2 className="flex items-center text-2xl font-bold text-gray-800 mb-5"><FaIcons.FaGlobe className="mr-3 text-secondary" /> Redes e Portfólios</h2>
                 <ul className="flex flex-wrap gap-3">
                   {talento.redes_sociais.map((rede, index) => (
                     <li key={index}>
-                      <a href={rede.url} target="_blank" rel="noopener noreferrer" className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium shadow-sm hover:bg-blue-200 transition-colors break-all text-sm">
-                        {rede.rede}
+                      <a href={rede.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium shadow-sm hover:bg-blue-200 transition-colors break-all text-sm">
+                        {getSocialIcon(rede.icon)}
+                        <span>{rede.mediaName}</span>
                       </a>
                     </li>
                   ))}

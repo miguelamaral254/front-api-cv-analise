@@ -10,6 +10,8 @@ import ItemCriterioResposta from '../components/md-talentos/form/ItemCriterioRes
 import CamposPessoais from '../components/md-talentos/form/CamposPessoais';
 import { useSwal } from '../hooks/useSwal';
 import InfoVaga from '../components/md-vagas/InfoVaga';
+import * as FaIcons from 'react-icons/fa';
+import socialData from '../data/socials.json';
 
 const FormInscricaoPage = () => {
   const { vagaId } = useParams();
@@ -38,6 +40,19 @@ const FormInscricaoPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
+  const socialOptions = socialData.map(social => {
+    const IconComponent = FaIcons[social.icon];
+    return {
+      value: social.name,
+      label: (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <IconComponent style={{ marginRight: '8px' }} />
+          {social.name}
+        </div>
+      )
+    };
+  });
+  
   useEffect(() => {
     const fetchDadosIniciais = async () => {
       try {
@@ -94,6 +109,24 @@ const FormInscricaoPage = () => {
       ...exp,
       periodo: `${exp.data_inicio} - ${exp.emprego_atual ? 'Presente' : exp.data_fim}`
     }));
+    
+    // LÓGICA CORRIGIDA AQUI
+    const redesSociaisFormatadas = redesSociais.map(rs => {
+      if (!rs.rede) return null;
+      const mediaName = rs.rede; // rs.rede já é o texto "LinkedIn"
+      const socialInfo = socialData.find(social => social.name === mediaName);
+      return {
+        mediaName: mediaName,
+        icon: socialInfo ? socialInfo.icon : 'FaLink',
+        url: rs.url
+      };
+    }).filter(Boolean);
+    
+    // LÓGICA CORRIGIDA AQUI
+    const idiomasFormatados = idiomas.map(idioma => ({
+      idioma: idioma.idioma, // idioma.idioma já é o texto
+      nivel: idioma.nivel,   // idioma.nivel já é o texto
+    }));
 
     const payload = {
       ...formData,
@@ -101,8 +134,8 @@ const FormInscricaoPage = () => {
       vaga_id: parseInt(vagaId),
       experiencia_profissional: experienciasFormatadas,
       formacao: formacoes,
-      idiomas: idiomas,
-      redes_sociais: redesSociais,
+      idiomas: idiomasFormatados,
+      redes_sociais: redesSociaisFormatadas,
       cursos_extracurriculares: cursos,
       deficiencia_detalhes: formData.deficiencia ? deficienciaDetalhes : null,
       respostas_criterios: respostasCriterios,
@@ -110,20 +143,25 @@ const FormInscricaoPage = () => {
     };
     delete payload.estado;
 
+    console.log("DADOS ENVIADOS:", JSON.stringify(payload, null, 2));
+
     try {
       await inscreverTalento(payload);
       fireSuccess('Inscrição Realizada!', 'Sua candidatura foi enviada com sucesso.')
         .then(() => navigate('/vagas'));
     } catch (err) {
-      fireError("Ocorreu um erro!", "Não foi possível enviar sua inscrição. Por favor, tente novamente.",err);
+      console.error("ERRO AO ENVIAR:", err);
+      fireError("Ocorreu um erro!", "Não foi possível enviar sua inscrição. Por favor, tente novamente.", err);
     } finally {
       setIsSubmitting(false);
     }
   };
   
   const nivelOptions = [
-    { value: 'A1 - Iniciante', label: 'A1 - Iniciante' },
-    { value: 'B1 - Intermediário', label: 'B1 - Intermediário' },
+    { value: 'A1 - Iniciante 1', label: 'A1 - Iniciante 1'},
+    { value: 'A2 - Iniciante 2', label: 'A2 - Iniciante 2'},
+    { value: 'B1 - Intermediário 1', label: 'B1 - Intermediário 1' },
+    { value: 'B2 - Intermediário 2', label: 'B2 - Intermediário 2' },
     { value: 'C1 - Avançado', label: 'C1 - Avançado' },
     { value: 'C2 - Proficiente/Nativo', label: 'C2 - Proficiente/Nativo' },
   ];
@@ -140,7 +178,6 @@ const FormInscricaoPage = () => {
         <div className="lg:col-span-2">
           <h1 className="text-3xl font-bold mb-6 text-gray-800">Formulário de Inscrição</h1>
           <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md space-y-8">
-            
             <CamposPessoais 
                 formData={formData} 
                 onInputChange={handleInputChange} 
@@ -148,13 +185,30 @@ const FormInscricaoPage = () => {
                 deficienciaDetalhes={deficienciaDetalhes}
                 setDeficienciaDetalhes={setDeficienciaDetalhes}
             />
-
             <GerenciadorExperiencia itens={experiencias} setItens={setExperiencias} />
             <GerenciadorFormacao itens={formacoes} setItens={setFormacoes} objetoInicial={{ curso: '', instituicao: '', data_inicio: '', data_fim: '', cursando: false, periodo_atual: '' }} />
             <GerenciadorDinamico titulo="Idiomas" itens={idiomas} setItens={setIdiomas} campos={[{name: 'idioma', label: 'Idioma', type: 'react-select', options: languageOptions, placeholder: 'Selecione...'}, {name: 'nivel', label: 'Nível', type: 'react-select', options: nivelOptions, placeholder: 'Selecione...'}]} objetoInicial={{idioma: '', nivel: ''}} />
-            <GerenciadorDinamico titulo="Cursos Extracurriculares" itens={cursos} setItens={setCursos} campos={[{name: 'curso', label: 'Nome do Curso'}, {name: 'instituicao', label: 'Instituição'}]} objetoInicial={{curso: '', instituicao: ''}} />
-            <GerenciadorDinamico titulo="Redes Sociais" itens={redesSociais} setItens={setRedesSociais} campos={[{name: 'rede', label: 'Rede Social', placeholder: 'Ex: LinkedIn, GitHub'}, {name: 'url', label: 'URL do Perfil', placeholder: 'https://...'}]} objetoInicial={{rede: '', url: ''}} />
-
+            <GerenciadorDinamico 
+                titulo="Cursos Extracurriculares" 
+                itens={cursos} 
+                setItens={setCursos} 
+                campos={[
+                    {name: 'curso', label: 'Nome do Curso'}, 
+                    {name: 'instituicao', label: 'Instituição'},
+                    {name: 'carga_horaria', label: 'Carga Horária (horas)', type: 'number'}
+                ]} 
+                objetoInicial={{curso: '', instituicao: '', carga_horaria: ''}} 
+            />
+            <GerenciadorDinamico
+                titulo="Redes Sociais"
+                itens={redesSociais}
+                setItens={setRedesSociais}
+                objetoInicial={{ rede: '', url: '' }}
+                campos={[
+                    { name: 'rede', label: 'Rede Social', type: 'react-select', options: socialOptions, fullWidth: true },
+                    { name: 'url', label: 'URL do Perfil', placeholder: 'https://...', fullWidth: true }
+                ]}
+            />
             {vaga && Object.keys(vaga.criterios_de_analise).length > 0 && (
                 <div className="border-t pt-6">
                     <h2 className="text-2xl font-bold text-gray-800 mb-4">Pré-requisitos da Vaga</h2>
@@ -165,7 +219,6 @@ const FormInscricaoPage = () => {
                     </div>
                 </div>
             )}
-
             {vaga && vaga.criterios_diferenciais_de_analise && Object.keys(vaga.criterios_diferenciais_de_analise).length > 0 && (
                 <div className="border-t pt-6">
                     <h2 className="text-2xl font-bold text-gray-800 mb-4">Diferenciais (Opcional)</h2>
@@ -176,7 +229,6 @@ const FormInscricaoPage = () => {
                     </div>
                 </div>
             )}
-
             <div className="border-t pt-6 space-y-4">
               <label className="flex items-start">
                 <input type="checkbox" name="confirmar_dados_verdadeiros" checked={formData.confirmar_dados_verdadeiros} onChange={handleInputChange} className="h-4 w-4 mt-1 rounded border-gray-300" required/>
