@@ -18,7 +18,8 @@ const ListaDeVagas = ({ vagas, onVagaClick }) => {
           vagasVisiveis.map(vaga => (
             <div
               key={vaga.id}
-              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-200 flex flex-col"
+              // Adiciona uma classe de opacidade para vagas finalizadas
+              className={`bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 flex flex-col ${vaga.finalizada ? 'opacity-70' : ''}`}
             >
               <div className="flex-grow">
                 <h2 className="text-2xl font-semibold mb-2 text-gray-900">{vaga.titulo_vaga}</h2>
@@ -28,6 +29,10 @@ const ListaDeVagas = ({ vagas, onVagaClick }) => {
                   <span className="bg-green-100 text-green-800 px-2.5 py-1 rounded-full">🏷️ {vaga.nome_area}</span>
                   {vaga.vaga_pcd && (
                     <span className="bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full font-medium">♿ Vaga Afirmativa (PCD)</span>
+                  )}
+                  {/* Tag para vagas finalizadas */}
+                  {vaga.finalizada && (
+                    <span className="bg-red-100 text-red-800 px-2.5 py-1 rounded-full font-medium">Finalizada</span>
                   )}
                 </div>
                 

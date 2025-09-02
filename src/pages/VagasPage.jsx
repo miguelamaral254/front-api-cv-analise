@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { getVagas, getVagaById } from '../services/vagas.service';
 import { getTalentoById } from '../services/talentos.service';
 import ListaDeVagas from '../components/md-vagas/ListaDeVagas';
@@ -14,8 +15,9 @@ const VagasPage = () => {
   const [error, setError] = useState(null);
   const [talentoSelecionado, setTalentoSelecionado] = useState(null);
   const [isTalentoLoading, setIsTalentoLoading] = useState(false);
+  const { user } = useAuth();
   const [filtros, setFiltros] = useState({
-    termo: '', cidades: [], modelos: [], areaNomes: [], ordenacao: 'recentes'
+    termo: '', cidades: [], modelos: [], areaNomes: [], ordenacao: 'recentes', status: 'abertas'
   });
   const navigate = useNavigate();
 
@@ -54,15 +56,23 @@ const VagasPage = () => {
       const matchCidades = filtros.cidades.length > 0 ? filtros.cidades.includes(vaga.cidade) : true;
       const matchModelos = filtros.modelos.length > 0 ? filtros.modelos.includes(vaga.modelo_trabalho) : true;
       const matchAreas = filtros.areaNomes.length > 0 ? filtros.areaNomes.includes(vaga.nome_area) : true;
-      return matchTermo && matchCidades && matchModelos && matchAreas;
+      
+      // ALTERAÇÃO AQUI: Lógica de filtro agora verifica se 'finalizada_em' não é nulo
+      const isFinalizada = vaga.finalizada_em != null;
+      const matchStatus = user 
+        ? (filtros.status === 'todas' ? true : filtros.status === 'finalizadas' ? isFinalizada : !isFinalizada)
+        : !isFinalizada; // Se não estiver logado, mostra apenas vagas abertas
+
+      return matchTermo && matchCidades && matchModelos && matchAreas && matchStatus;
     });
+
     if (filtros.ordenacao === 'antigas') {
       vagasProcessadas.sort((a, b) => new Date(a.criado_em) - new Date(b.criado_em));
     } else {
       vagasProcessadas.sort((a, b) => new Date(b.criado_em) - new Date(a.criado_em));
     }
     return vagasProcessadas;
-  }, [vagas, filtros]);
+  }, [vagas, filtros, user]);
 
   const handleTalentoClick = async (talentoId) => {
     setIsTalentoLoading(true);
@@ -113,6 +123,7 @@ const VagasPage = () => {
             filtros={filtros} 
             onFiltroChange={handleFiltroChange}
             cidades={cidadesUnicas}
+            user={user}
           />
           <ListaDeVagas 
             vagas={vagasFiltradas} 
