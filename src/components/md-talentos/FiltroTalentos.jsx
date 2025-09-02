@@ -2,7 +2,15 @@ import Select from 'react-select';
 import { useMemo } from 'react';
 import { MdClear } from 'react-icons/md';
 
-const FiltroTalentos = ({ filtros, onFiltroChange, cidades, areas, onLimparFiltros }) => {
+const FiltroTalentos = ({ 
+    filtros, 
+    onFiltroChange, 
+    cidades, 
+    areas, 
+    onLimparFiltros,
+    hideVagaIdFilter = false,
+    showStatusFilter = false
+}) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -17,9 +25,20 @@ const FiltroTalentos = ({ filtros, onFiltroChange, cidades, areas, onLimparFiltr
   const cidadeOptions = useMemo(() => cidades.map(c => ({ value: c, label: c })), [cidades]);
   const areaOptions = useMemo(() => areas.map(a => ({ value: a, label: a })), [areas]);
 
+  // Opções para o novo Select de Status
+  const statusOptions = [
+    { value: 'todos', label: 'Todos' },
+    { value: 'ativos', label: 'Ativos' },
+    { value: 'reprovados', label: 'Reprovados' }
+  ];
+
   const isFiltroAtivo = useMemo(() => {
-    return filtros.termo || filtros.vaga_id || filtros.cidades.length > 0 || filtros.areaNomes.length > 0;
-  }, [filtros]);
+    return filtros.termo || 
+           (!hideVagaIdFilter && filtros.vaga_id) || 
+           filtros.cidades.length > 0 || 
+           filtros.areaNomes.length > 0 || 
+           (showStatusFilter && filtros.status !== 'todos');
+  }, [filtros, hideVagaIdFilter, showStatusFilter]);
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 mb-6">
@@ -38,18 +57,20 @@ const FiltroTalentos = ({ filtros, onFiltroChange, cidades, areas, onLimparFiltr
           />
         </div>
 
-        <div>
-          <label htmlFor="vaga_id" className="block text-sm font-medium text-gray-600 mb-1">ID da Vaga</label>
-          <input
-            id="vaga_id"
-            type="number"
-            name="vaga_id"
-            value={filtros.vaga_id || ''}
-            onChange={handleInputChange}
-            placeholder="Buscar..."
-            className="p-2 border rounded-lg w-full h-[38px]"
-          />
-        </div>
+        {!hideVagaIdFilter && (
+          <div>
+            <label htmlFor="vaga_id" className="block text-sm font-medium text-gray-600 mb-1">ID da Vaga</label>
+            <input
+              id="vaga_id"
+              type="number"
+              name="vaga_id"
+              value={filtros.vaga_id || ''}
+              onChange={handleInputChange}
+              placeholder="Buscar..."
+              className="p-2 border rounded-lg w-full h-[38px]"
+            />
+          </div>
+        )}
 
         <div>
           <label htmlFor="cidades" className="block text-sm font-medium text-gray-600 mb-1">Cidades</label>
@@ -81,6 +102,23 @@ const FiltroTalentos = ({ filtros, onFiltroChange, cidades, areas, onLimparFiltr
           />
         </div>
         
+        {showStatusFilter && (
+            <div>
+                <label htmlFor="status" className="block text-sm font-medium text-gray-600 mb-1">Status</label>
+                {/* ALTERAÇÃO AQUI: Trocado <select> por <Select> */}
+                <Select
+                    inputId="status"
+                    name="status"
+                    options={statusOptions}
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                    placeholder="Selecione..."
+                    onChange={(option) => onFiltroChange('status', option.value)}
+                    value={statusOptions.find(opt => opt.value === filtros.status)}
+                />
+            </div>
+        )}
+        
         <div className="h-[38px]">
           {isFiltroAtivo && (
             <button
@@ -99,4 +137,3 @@ const FiltroTalentos = ({ filtros, onFiltroChange, cidades, areas, onLimparFiltr
 };
 
 export default FiltroTalentos;
-

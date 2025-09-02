@@ -50,11 +50,11 @@ const ComentariosModal = ({ talento, onClose, onDataChange }) => {
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-[60] p-4 animate-fade-in"
       onClick={onClose}
     >
-      <div 
+      <div
         className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
@@ -74,10 +74,12 @@ const ComentariosModal = ({ talento, onClose, onDataChange }) => {
                     <p className="font-semibold text-gray-900">{comentario.user_nome}</p>
                     <p className="text-xs text-gray-500">{formatarDataHora(comentario.criado_em)}</p>
                   </div>
-                  {user && (user.role === 'admin' || user.id === comentario.user_id) && (
-                    <button 
-                      onClick={() => handleDeleteComment(comentario.id)} 
-                      className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                  {/* ALTERAÇÃO AQUI: Mostra o botão apenas se o ID do usuário logado for o mesmo do criador do comentário */}
+                  {user && user.id === comentario.user_id && (
+                    <button
+                      onClick={() => handleDeleteComment(comentario.id)}
+                      // ALTERAÇÃO AQUI: Ícone vermelho por padrão, e um vermelho mais escuro no hover
+                      className="text-red-600 hover:text-red-800 transition-colors p-1"
                       aria-label="Excluir comentário"
                     >
                       <MdDelete size={18} />

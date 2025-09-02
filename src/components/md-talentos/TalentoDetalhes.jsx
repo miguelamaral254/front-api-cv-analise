@@ -78,7 +78,6 @@ const TalentoDetalhes = ({ talento, onVoltarClick, onTalentoUpdate }) => {
               <h1 className="text-3xl font-extrabold text-gray-900 break-words">{talento.nome}</h1>
               <button
                 onClick={() => setIsComentariosModalOpen(true)}
-                disabled={!talento.ativo}
                 className="flex items-center gap-2 text-lg text-gray-500 hover:text-secondary transition-colors font-semibold py-1 px-3 bg-gray-100 rounded-full disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
               >
                 <MdComment />
@@ -119,11 +118,7 @@ const TalentoDetalhes = ({ talento, onVoltarClick, onTalentoUpdate }) => {
           <span className="bg-blue-100 text-blue-800 px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2"><MdFlag /> Vaga ID: {talento.vaga_id}</span>
           <span className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2"><MdCalendarToday /> Aplicação: {formatarData(talento.criado_em)}</span>
           {talento.deficiencia && (<span className="bg-purple-100 text-purple-800 px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2">♿ PCD</span>)}
-          {!talento.ativo && (
-              <span className="bg-red-100 text-red-800 px-3 py-1.5 rounded-full text-sm font-bold flex items-center gap-2">
-                  <MdInfoOutline /> Perfil Inativo
-              </span>
-          )}
+         
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-12">

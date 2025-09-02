@@ -3,15 +3,20 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useSwal } from '../../hooks/useSwal';
 import { getTalentoById, reprovarCandidato } from '../../services/talentos.service';
 import { MdWork, MdSchool, MdLanguage, MdQuestionAnswer, MdContentCopy, MdMailOutline, MdOutlineBookmarks, MdLocationOn, MdCalendarToday, MdFlag, MdComment, MdThumbDown, MdInfoOutline } from 'react-icons/md';
-import { FaWhatsapp, FaGlobe, FaStar, FaWheelchair } from 'react-icons/fa';
-import ComentariosModal from './ComentariosModal'; // <-- IMPORTADO AQUI
+import * as FaIcons from 'react-icons/fa';
+import ComentariosModal from './ComentariosModal';
 
 const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
   const [copiedText, setCopiedText] = useState('');
-  const [isComentariosModalOpen, setIsComentariosModalOpen] = useState(false); // <-- ESTADO ADICIONADO
+  const [isComentariosModalOpen, setIsComentariosModalOpen] = useState(false);
   const { user } = useAuth();
   const { fireConfirm, fireToast, fireError } = useSwal();
   const isRecruiter = user && (user.role === 'admin' || user.role === 'user1');
+
+  const getSocialIcon = (iconName) => {
+    const IconComponent = FaIcons[iconName];
+    return IconComponent ? <IconComponent /> : <FaIcons.FaLink />;
+  };
 
   const formatarData = (dataString) => {
     if (!dataString) return 'Data não informada';
@@ -75,10 +80,8 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
               <div>
                 <div className="flex flex-wrap items-center gap-4">
                   <h1 className="text-3xl font-extrabold text-gray-900 break-words">{talento.nome}</h1>
-                  {/* BOTÃO DE COMENTÁRIOS AGORA É FUNCIONAL */}
                   <button
                     onClick={() => setIsComentariosModalOpen(true)}
-                    disabled={!talento.ativo}
                     className="flex items-center gap-2 text-lg text-gray-500 hover:text-secondary transition-colors font-semibold py-1 px-3 bg-gray-100 rounded-full disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
                   >
                     <MdComment />
@@ -96,7 +99,7 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
                   {talento.telefone && (
                       <>
                           <button onClick={() => handleCopy(talento.telefone, 'telefone')} className="p-1 rounded-full hover:bg-gray-200 transition-colors"><MdContentCopy className="text-gray-500" /></button>
-                          <a href={`https://wa.me/${formatPhoneNumberForLink(talento.telefone)}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-gray-200 transition-colors"><FaWhatsapp className="text-green-500" /></a>
+                          <a href={`https://wa.me/${formatPhoneNumberForLink(talento.telefone)}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-gray-200 transition-colors"><FaIcons.FaWhatsapp className="text-green-500" /></a>
                           {copiedText === 'telefone' && <span className="text-sm text-green-600 animate-pulse">Copiado!</span>}
                       </>
                   )}
@@ -121,7 +124,7 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
               {talento.deficiencia && (<span className="bg-purple-100 text-purple-800 px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2">♿ PCD</span>)}
               {!talento.ativo && (
                   <span className="bg-red-100 text-red-800 px-3 py-1.5 rounded-full text-sm font-bold flex items-center gap-2">
-                      <MdInfoOutline /> Perfil Inativo
+                      <MdInfoOutline /> Candidato Reprovado
                   </span>
               )}
             </div>
@@ -165,7 +168,7 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
 
                   {talento.respostas_diferenciais && Object.keys(talento.respostas_diferenciais).length > 0 && (
                       <div>
-                          <h2 className="flex items-center text-2xl font-bold text-gray-800 mb-5"><FaStar className="mr-3 text-green-500" /> Respostas aos Diferenciais</h2>
+                          <h2 className="flex items-center text-2xl font-bold text-gray-800 mb-5"><FaIcons.FaStar className="mr-3 text-green-500" /> Respostas aos Diferenciais</h2>
                           <div className="space-y-4">
                               {Object.entries(talento.respostas_diferenciais).map(([criterio, resposta]) => (
                                   <div key={criterio} className="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -181,7 +184,7 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
               <div className="lg:col-span-1 space-y-10 mt-10 lg:mt-0">
                   {talento.deficiencia_detalhes?.length > 0 && (
                       <div>
-                          <h2 className="flex items-center text-2xl font-bold text-gray-800 mb-5"><FaWheelchair className="mr-3 text-secondary" /> Acessibilidade</h2>
+                          <h2 className="flex items-center text-2xl font-bold text-gray-800 mb-5"><FaIcons.FaWheelchair className="mr-3 text-secondary" /> Acessibilidade</h2>
                           <div className="space-y-4">
                               {talento.deficiencia_detalhes.map((detalhe, index) => (
                                   <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
@@ -215,7 +218,11 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
                               {talento.cursos_extracurriculares.map((curso, index) => (
                                   <li key={index} className="border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50 rounded-r-lg">
                                       <p className="text-base font-semibold text-gray-800 break-words">{curso.curso}</p>
-                                      <p className="text-gray-600 break-words"><span className="font-medium">{curso.instituicao}</span></p>
+                                      {/* ALTERAÇÃO AQUI: Adiciona a carga horária se ela existir */}
+                                      <p className="text-sm text-gray-600 break-words">
+                                        <span className="font-medium">{curso.instituicao}</span>
+                                        {curso.carga_horaria && ` • ${curso.carga_horaria}h`}
+                                      </p>
                                   </li>
                               ))}
                           </ul>
@@ -237,12 +244,13 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
 
                   {talento.redes_sociais?.length > 0 && (
                       <div>
-                          <h2 className="flex items-center text-2xl font-bold text-gray-800 mb-5"><FaGlobe className="mr-3 text-secondary" /> Redes e Portfólios</h2>
+                          <h2 className="flex items-center text-2xl font-bold text-gray-800 mb-5"><FaIcons.FaGlobe className="mr-3 text-secondary" /> Redes e Portfólios</h2>
                           <ul className="flex flex-wrap gap-3">
                               {talento.redes_sociais.map((rede, index) => (
                                   <li key={index}>
-                                      <a href={rede.url} target="_blank" rel="noopener noreferrer" className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium shadow-sm hover:bg-blue-200 transition-colors break-all text-sm">
-                                          {rede.rede}
+                                      <a href={rede.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium shadow-sm hover:bg-blue-200 transition-colors break-all text-sm">
+                                          {getSocialIcon(rede.icon)}
+                                          <span>{rede.mediaName}</span>
                                       </a>
                                   </li>
                               ))}
@@ -255,7 +263,6 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
         </div>
       </div>
       
-      {/* RENDERIZAÇÃO CONDICIONAL DO MODAL DE COMENTÁRIOS */}
       {isComentariosModalOpen && (
         <ComentariosModal
           talento={talento}

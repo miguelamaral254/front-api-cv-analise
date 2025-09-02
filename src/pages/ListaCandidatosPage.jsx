@@ -4,6 +4,7 @@ import { getTalentosByVagaId, getTalentoById } from '../services/talentos.servic
 import { analyzeVaga } from '../services/vagas.service';
 import ListaDeTalentos from '../components/md-talentos/ListaDeTalentos';
 import TalentoDetalhesModal from '../components/md-talentos/TalentoDetalhesModal';
+import FiltroTalentos from '../components/md-talentos/FiltroTalentos';
 import { MdArrowBack, MdAnalytics, MdFormatListBulleted } from 'react-icons/md';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
@@ -23,6 +24,14 @@ const ListaCandidatosPage = () => {
     const [paginaAtual, setPaginaAtual] = useState(1);
     const itensPorPagina = 10;
 
+    const initialStateFiltros = {
+        termo: '',
+        cidades: [],
+        areaNomes: [],
+        status: 'todos'
+    };
+    const [filtros, setFiltros] = useState(initialStateFiltros);
+
     useEffect(() => {
         const fetchTalentos = async () => {
             setIsLoading(true);
@@ -41,15 +50,58 @@ const ListaCandidatosPage = () => {
     const handlePaginaChange = (event, value) => {
         setPaginaAtual(value);
     };
+
+    const dadosBase = useMemo(() => ranking || talentos, [ranking, talentos]);
+
+    const cidadesUnicas = useMemo(() => {
+        const cidadesDosTalentos = dadosBase.map(t => t.cidade).filter(c => c);
+        return [...new Set(cidadesDosTalentos)].sort();
+    }, [dadosBase]);
+
+    const areasUnicas = useMemo(() => {
+        const nomesDasAreas = dadosBase.map(t => t.nome_area).filter(a => a);
+        return [...new Set(nomesDasAreas)].sort();
+    }, [dadosBase]);
+
+    const handleFiltroChange = (name, value) => {
+        setFiltros(prev => ({ ...prev, [name]: value }));
+        setPaginaAtual(1);
+    };
     
-    const dadosAtuais = useMemo(() => ranking || talentos, [ranking, talentos]);
+    const handleLimparFiltros = () => {
+        setFiltros(initialStateFiltros);
+        setPaginaAtual(1);
+    };
+
+    const talentosFiltrados = useMemo(() => {
+        return dadosBase.filter(talento => {
+            const termoBusca = filtros.termo.toLowerCase();
+            const matchTermo = filtros.termo
+              ? (talento.nome && talento.nome.toLowerCase().includes(termoBusca)) || 
+                (talento.email && talento.email.toLowerCase().includes(termoBusca))
+              : true;
+            const matchCidades = filtros.cidades.length > 0
+              ? filtros.cidades.includes(talento.cidade)
+              : true;
+            const matchAreas = filtros.areaNomes.length > 0
+              ? filtros.areaNomes.includes(talento.nome_area)
+              : true;
+            const matchStatus = filtros.status === 'todos'
+              ? true
+              : filtros.status === 'ativos'
+                ? talento.ativo
+                : !talento.ativo;
+
+            return matchTermo && matchCidades && matchAreas && matchStatus;
+        });
+    }, [dadosBase, filtros]);
 
     const paginacao = useMemo(() => {
-        const totalPaginas = Math.ceil(dadosAtuais.length / itensPorPagina);
+        const totalPaginas = Math.ceil(talentosFiltrados.length / itensPorPagina);
         const indiceInicial = (paginaAtual - 1) * itensPorPagina;
-        const itensPaginados = dadosAtuais.slice(indiceInicial, indiceInicial + itensPorPagina);
+        const itensPaginados = talentosFiltrados.slice(indiceInicial, indiceInicial + itensPorPagina);
         return { totalPaginas, itensPaginados };
-    }, [dadosAtuais, paginaAtual, itensPorPagina]);
+    }, [talentosFiltrados, paginaAtual, itensPorPagina]);
 
     const handleAnalisar = async (e) => {
         if (e) e.preventDefault();
@@ -81,6 +133,18 @@ const ListaCandidatosPage = () => {
         }
     };
     
+    const handleModalDataChange = (talentoAtualizado) => {
+        setTalentos(prevTalentos =>
+            prevTalentos.map(t => (t.id === talentoAtualizado.id ? talentoAtualizado : t))
+        );
+        if (ranking) {
+            setRanking(prevRanking =>
+                prevRanking.map(r => (r.id === talentoAtualizado.id ? { ...r, ...talentoAtualizado } : r))
+            );
+        }
+        setTalentoSelecionado(talentoAtualizado);
+    };
+
     const showListaCompleta = () => {
         setRanking(null);
         setError(null);
@@ -89,7 +153,18 @@ const ListaCandidatosPage = () => {
 
     const colunasListaCompleta = [
         { header: 'Nome', accessor: 'nome' },
+        { header: 'Status', render: (talento) => (
+            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                talento.ativo 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-red-100 text-red-800'
+            }`}>
+                {talento.ativo ? 'Ativo' : 'Reprovado'}
+            </span>
+        )},
         { header: 'Email', accessor: 'email' },
+        { header: "Cidade", accessor: "cidade" },
+        { header: "Área", accessor: "nome_area" },
         { header: 'Data de Inscrição', render: (talento) => new Date(talento.criado_em).toLocaleDateString() }
     ];
 
@@ -104,15 +179,17 @@ const ListaCandidatosPage = () => {
         if (isAnalyzing) return <p className="text-center text-gray-700 font-semibold p-10">🔍 Analisando...</p>;
         if (error) return <p className="text-center text-red-600 font-semibold p-10">{error}</p>;
 
+        const temFiltroAtivo = filtros.termo || filtros.cidades.length > 0 || filtros.areaNomes.length > 0 || filtros.status !== 'todos';
+
         return (
             <>
                 <ListaDeTalentos
                     talentos={paginacao.itensPaginados}
                     colunas={ranking ? colunasRanking : colunasListaCompleta}
                     onTalentoClick={(talento) => handleTalentoClick(talento.id)}
-                    mensagemVazio="Nenhum candidato se inscreveu para esta vaga ainda."
+                    mensagemVazio={temFiltroAtivo ? "Nenhum candidato encontrado com os filtros aplicados." : "Nenhum candidato se inscreveu para esta vaga ainda."}
                 />
-                {paginacao.totalPaginas > 0 && (
+                {paginacao.totalPaginas > 1 && (
                     <div className="flex justify-center mt-6">
                         <Stack spacing={2}>
                             <Pagination
@@ -135,16 +212,27 @@ const ListaCandidatosPage = () => {
                     <div className="flex justify-between items-center mb-8 border-b pb-4">
                         <div>
                             <h1 className="text-3xl font-extrabold text-gray-900">{ranking ? 'Ranking de Candidatos' : 'Candidatos Aplicados'}</h1>
-                            <p className="text-gray-500">{dadosAtuais.length} talento(s) encontrado(s)</p>
+                            <p className="text-gray-500">{talentosFiltrados.length} talento(s) encontrado(s)</p>
                         </div>
                         <button onClick={() => navigate(-1)} className="flex items-center gap-2 bg-gray-100 text-gray-600 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors">
                             <MdArrowBack /> Voltar
                         </button>
                     </div>
-                    <div className="mb-6 flex justify-center gap-4">
+
+                    <FiltroTalentos
+                        filtros={filtros}
+                        onFiltroChange={handleFiltroChange}
+                        cidades={cidadesUnicas}
+                        areas={areasUnicas}
+                        onLimparFiltros={handleLimparFiltros}
+                        hideVagaIdFilter={true}
+                        showStatusFilter={true}
+                    />
+
+                    <div className="my-6 flex justify-center gap-4">
                         {ranking ? (
                            <button onClick={showListaCompleta} className="flex items-center gap-2 bg-secondary text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-700">
-                             <MdFormatListBulleted /> Ver Lista Completa
+                              <MdFormatListBulleted /> Ver Lista Completa
                            </button>
                         ) : (
                           talentos.length > 0 && (
@@ -167,6 +255,7 @@ const ListaCandidatosPage = () => {
                 <TalentoDetalhesModal
                     talento={talentoSelecionado}
                     onClose={() => setTalentoSelecionado(null)}
+                    onDataChange={handleModalDataChange}
                 />
             )}
             {isModalOpen && (
