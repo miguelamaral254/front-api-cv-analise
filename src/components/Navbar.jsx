@@ -23,8 +23,6 @@ import LogoutIcon from "@mui/icons-material/Logout";
 
 import logo from "../assets/logo.png";
 
-
-
 const NavBar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -121,8 +119,11 @@ const NavBar = () => {
         <div className="mx-auto max-w-7xl px-4">
           <div className="flex h-16 items-center justify-between">
             <div>
-              <Link to={user ? "/vagas" : "/"}>
+              <Link to={user ? "/vagas" : "/"} className="flex flex-col items-center">
                 <img src={logo} alt="Logo Cognvox" className="h-8 w-auto" />
+                <span className="text-white font-semibold text-xs -mt-0.5 tracking-wider">
+                  Carreiras
+                </span>
               </Link>
             </div>
 

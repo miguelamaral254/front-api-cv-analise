@@ -56,12 +56,10 @@ const VagasPage = () => {
       const matchCidades = filtros.cidades.length > 0 ? filtros.cidades.includes(vaga.cidade) : true;
       const matchModelos = filtros.modelos.length > 0 ? filtros.modelos.includes(vaga.modelo_trabalho) : true;
       const matchAreas = filtros.areaNomes.length > 0 ? filtros.areaNomes.includes(vaga.nome_area) : true;
-      
-      // ALTERAÇÃO AQUI: Lógica de filtro agora verifica se 'finalizada_em' não é nulo
       const isFinalizada = vaga.finalizada_em != null;
       const matchStatus = user 
         ? (filtros.status === 'todas' ? true : filtros.status === 'finalizadas' ? isFinalizada : !isFinalizada)
-        : !isFinalizada; // Se não estiver logado, mostra apenas vagas abertas
+        : !isFinalizada; 
 
       return matchTermo && matchCidades && matchModelos && matchAreas && matchStatus;
     });
