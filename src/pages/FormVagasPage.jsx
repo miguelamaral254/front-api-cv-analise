@@ -47,18 +47,18 @@ const FormVagasPage = () => {
       return;
     }
     setIsSubmitting(true);
-    
+
     const formatarCriteriosParaApi = (listaCriterios) => {
-        return listaCriterios
-            .filter(c => c.nome && c.descricao)
-            .reduce((acc, crit) => {
-                acc[crit.nome.replace(/\s+/g, '_')] = {
-                    descricao: crit.descricao,
-                    peso: parseFloat(crit.peso),
-                    colunas: crit.colunas,
-                };
-                return acc;
-            }, {});
+      return listaCriterios
+          .filter(c => c.nome && c.descricao)
+          .reduce((acc, crit) => {
+            acc[crit.nome.replace(/\s+/g, '_')] = {
+              descricao: crit.descricao,
+              peso: parseFloat(crit.peso),
+              colunas: crit.colunas,
+            };
+            return acc;
+          }, {});
     };
 
     const criteriosParaApi = formatarCriteriosParaApi(criterios);
@@ -74,9 +74,9 @@ const FormVagasPage = () => {
     try {
       await createVaga(payload);
       fireSuccess('Vaga Criada!', 'A vaga foi publicada com sucesso.')
-        .then(() => {
-          navigate('/vagas');
-        });
+          .then(() => {
+            navigate('/vagas');
+          });
     } catch (err) {
       fireError('Erro na Criação', 'Ocorreu um erro ao criar a vaga. Verifique os campos e tente novamente.');
     } finally {
@@ -85,37 +85,36 @@ const FormVagasPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Criar Nova Vaga</h1>
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md space-y-8">
-        <CamposGeraisVaga
-          formData={formData}
-          onInputChange={handleInputChange}
-          onSelectChange={handleSelectChange}
-          onDescricaoChange={handleDescricaoChange}
-        />
-        
-        <GerenciadorCriterios
-          title="Critérios Obrigatórios"
-          criterios={criterios}
-          setCriterios={setCriterios}
-        />
+      <div className="container mx-auto p-4 max-w-4xl">
+        <h1 className="text-3xl font-bold mb-6 text-gray-800">Criar Nova Vaga</h1>
+        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md space-y-8">
+          <CamposGeraisVaga
+              formData={formData}
+              onInputChange={handleInputChange}
+              onSelectChange={handleSelectChange}
+              onDescricaoChange={handleDescricaoChange}
+          />
 
-        <GerenciadorCriterios
-          title="Critérios Diferenciais (Opcional)"
-          criterios={diferenciais}
-          setCriterios={setDiferenciais}
-        />
-        
-        <div className="text-right border-t pt-6">
-          <button type="submit" disabled={isSubmitting} className="bg-green-600 text-white font-bold px-8 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400">
-            {isSubmitting ? 'Criando Vaga...' : 'Criar Vaga'}
-          </button>
-        </div>
-      </form>
-    </div>
+          <GerenciadorCriterios
+              title="Critérios Obrigatórios"
+              criterios={criterios}
+              setCriterios={setCriterios}
+          />
+
+          <GerenciadorCriterios
+              title="Critérios Diferenciais (Opcional)"
+              criterios={diferenciais}
+              setCriterios={setDiferenciais}
+          />
+
+          <div className="text-right border-t pt-6">
+            <button type="submit" disabled={isSubmitting} className="bg-green-600 text-white font-bold px-8 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400">
+              {isSubmitting ? 'Criando Vaga...' : 'Criar Vaga'}
+            </button>
+          </div>
+        </form>
+      </div>
   );
 };
 
 export default FormVagasPage;
-
