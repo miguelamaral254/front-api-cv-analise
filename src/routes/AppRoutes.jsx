@@ -10,6 +10,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
 import Configuracoes from "../pages/Configuracoes";
 import ListaCandidatosPage from "../pages/ListaCandidatosPage";
+import UsersPage from "../pages/UsersPage.jsx";
 
 const AppRoutes = () => {
   return (
@@ -19,7 +20,7 @@ const AppRoutes = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/vagas" element={<VagasPage />} />
 
-      <Route path="/vagas/:vagaId/inscrever" element={<FormInscricaoPage />} />
+      <Route path="/vagas/:vagaId" element={<FormInscricaoPage />} />
 
       {/* Rotas Protegidas (precisa estar logado) */}
       <Route element={<ProtectedRoute />}>
@@ -39,6 +40,10 @@ const AppRoutes = () => {
 
         <Route element={<AdminRoute />}>
           <Route path="/users/criar" element={<FormUsersPage />} />
+            <Route
+                path="/users"
+                element={<UsersPage />}
+            />
           <Route
             path="/vagas/:vagaId/candidatos"
             element={<ListaCandidatosPage />}

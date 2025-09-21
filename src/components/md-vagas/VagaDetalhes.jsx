@@ -34,7 +34,7 @@ const VagaDetalhes = ({ vaga, onVoltarClick, onListarClick, onVagaFinalizada }) 
         <div>
           <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 break-words">{vaga.titulo_vaga}</h1>
           <p className={`text-lg lg:text-xl mt-1 font-semibold ${vaga.finalizada_em ? 'text-red-600' : 'text-green-600'}`}>
-            Status: {vaga.finalizada_em ? "Finalizada" : "Em andamento"}
+            {user ? `Status: ${vaga.finalizada_em ? "Finalizada" : "Em andamento"}` : ''}
           </p>
         </div>
         <div className="flex flex-col items-start gap-3 w-full sm:w-auto">
@@ -55,7 +55,7 @@ const VagaDetalhes = ({ vaga, onVoltarClick, onListarClick, onVagaFinalizada }) 
           )}
           {!vaga.finalizada_em && (
             <Link
-              to={`/vagas/${vaga.id}/inscrever`}
+              to={`/vagas/${vaga.id}`}
               className="flex items-center justify-center bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors whitespace-nowrap text-sm w-full"
             >
               {isRecruiter ? 'Visualizar formulário' : 'Inscrever-se'}

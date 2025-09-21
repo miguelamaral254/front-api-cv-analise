@@ -189,7 +189,7 @@ const ListaCandidatosPage = () => {
                     onTalentoClick={(talento) => handleTalentoClick(talento.id)}
                     mensagemVazio={temFiltroAtivo ? "Nenhum candidato encontrado com os filtros aplicados." : "Nenhum candidato se inscreveu para esta vaga ainda."}
                 />
-                {paginacao.totalPaginas > 1 && (
+                {paginacao.totalPaginas > 0 && (
                     <div className="flex justify-center mt-6">
                         <Stack spacing={2}>
                             <Pagination

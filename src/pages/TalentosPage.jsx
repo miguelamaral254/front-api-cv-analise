@@ -5,8 +5,6 @@ import FiltroTalentos from '../components/md-talentos/FiltroTalentos';
 import ListaDeTalentos from '../components/md-talentos/ListaDeTalentos';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
-
-// Importações dos novos componentes de esqueleto
 import FiltroTalentosSkeleton from '../components/md-talentos/FiltroTalentosSkeleton';
 import ListaDeTalentosSkeleton from '../components/md-talentos/ListaDeTalentosSkeleton';
 
@@ -42,7 +40,6 @@ const TalentosPage = () => {
     fetchTalentos();
   }, []);
 
-  // ... (o restante da sua lógica como cidadesUnicas, handleFiltroChange, etc. permanece igual)
   const cidadesUnicas = useMemo(() => {
     const cidadesDosTalentos = talentos.map(t => t.cidade).filter(c => c);
     return [...new Set(cidadesDosTalentos)].sort();
@@ -115,8 +112,6 @@ const TalentosPage = () => {
   ];
 
 
-  // ----- MODIFICAÇÃO PRINCIPAL AQUI -----
-  // Mostra o esqueleto apenas durante o carregamento inicial da lista.
   if (loading && !talentoSelecionado && talentos.length === 0) {
     return (
         <div className="container mx-auto p-4">
@@ -161,7 +156,7 @@ const TalentosPage = () => {
                   onTalentoClick={handleTalentoClick}
                   mensagemVazio="Nenhum talento encontrado com os filtros aplicados."
               />
-              {paginacao.totalPaginas > 1 && (
+              {paginacao.totalPaginas > 0 && (
                   <div className="flex justify-center mt-6">
                     <Stack spacing={2}>
                       <Pagination
