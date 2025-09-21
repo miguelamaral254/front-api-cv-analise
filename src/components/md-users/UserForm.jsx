@@ -53,7 +53,7 @@ export const UserForm = ({ onSuccess }) => {
         role: 'user1',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
-    
+
     const passwordsMatch = formData.password && formData.password === formData.confirmPassword;
     const isFormValid = formData.nome && formData.email && formData.role && passwordsMatch && formData.password.length >= 8;
 
@@ -76,7 +76,7 @@ export const UserForm = ({ onSuccess }) => {
             const { ...userData } = formData;
             await createUser(userData);
             fireSuccess('Sucesso!', 'Usuário criado com sucesso!')
-              .then(() => onSuccess());
+                .then(() => onSuccess());
         } catch (err) {
             fireError('Erro!', err.response?.data?.detail || 'Ocorreu um erro ao criar o usuário.');
         } finally {
@@ -94,7 +94,7 @@ export const UserForm = ({ onSuccess }) => {
         <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-lg space-y-6">
             <InputField id="nome" name="nome" label="Nome Completo" value={formData.nome} onChange={handleInputChange} required />
             <InputField id="email" name="email" label="Email" type="email" value={formData.email} onChange={handleInputChange} required />
-            
+
             <div>
                 <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">Permissão</label>
                 <Select
@@ -107,21 +107,21 @@ export const UserForm = ({ onSuccess }) => {
                     isClearable
                 />
             </div>
-            
+
             <div>
                 <PasswordField id="password" name="password" label="Senha" value={formData.password} onChange={handleInputChange} />
                 <PasswordStrengthMeter password={formData.password} />
             </div>
-            
+
             <PasswordField id="confirmPassword" name="confirmPassword" label="Confirmar Senha" value={formData.confirmPassword} onChange={handleInputChange} />
-            
+
             {formData.confirmPassword && !passwordsMatch && (
-              <p className="text-sm text-red-600 -mt-2">As senhas não coincidem.</p>
+                <p className="text-sm text-red-600 -mt-2">As senhas não coincidem.</p>
             )}
 
             <div className="text-right border-t pt-6">
                 <button type="submit" disabled={!isFormValid || isSubmitting} className="bg-secondary text-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
-                    {isSubmitting ? 'Criando...' : 'Criar Usuário'}
+                    {isSubmitting ? 'Salvando...' : 'Criar Usuário'}
                 </button>
             </div>
         </form>

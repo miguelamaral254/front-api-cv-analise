@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { getUsers, getUserById } from '../services/users.service';
 
 import ListaDeTalentos from '../components/md-talentos/ListaDeTalentos';
@@ -26,8 +26,6 @@ const UsersPage = () => {
     const [paginaAtual, setPaginaAtual] = useState(1);
     const itensPorPagina = 10;
 
-    const navigate = useNavigate();
-
     useEffect(() => {
         const fetchUsers = async () => {
             setLoading(true);
@@ -40,8 +38,11 @@ const UsersPage = () => {
                 setLoading(false);
             }
         };
-        fetchUsers();
-    }, []);
+        // Carrega os dados apenas quando a view de lista estiver ativa
+        if (!userSelecionado) {
+            fetchUsers();
+        }
+    }, [userSelecionado]);
 
     const handleUserClick = async (user) => {
         setIsDetailLoading(true);
@@ -53,6 +54,14 @@ const UsersPage = () => {
         } finally {
             setIsDetailLoading(false);
         }
+    };
+
+    const handleUserUpdate = (updatedUser) => {
+        setUserSelecionado(updatedUser);
+        // Atualiza a lista principal para refletir a mudança de status sem precisar recarregar a página
+        setUsers(currentUsers =>
+            currentUsers.map(u => u.id === updatedUser.id ? updatedUser : u)
+        );
     };
 
     const handleFiltroChange = (name, value) => {
@@ -70,9 +79,7 @@ const UsersPage = () => {
             const matchTermo = filtros.termo
                 ? user.nome.toLowerCase().includes(termoBusca) || user.email.toLowerCase().includes(termoBusca)
                 : true;
-
             const matchRole = filtros.role ? user.role === filtros.role : true;
-
             return matchTermo && matchRole;
         });
     }, [users, filtros]);
@@ -100,15 +107,17 @@ const UsersPage = () => {
         },
         { header: "Email", accessor: "email" },
         {
-            header: "Nível de Acesso",
+            header: "Status",
             render: (user) => (
-                <span className={`px-2.5 py-1 text-sm rounded-full font-medium ${
-                    user.role === 'admin' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                <div className={`flex items-center gap-2 px-2.5 py-1 text-sm rounded-full font-medium w-fit ${
+                    user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                 }`}>
-                  {user.role}
-                </span>
+                    <div className={`h-2 w-2 rounded-full ${user.is_active ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                    {user.is_active ? 'Ativo' : 'Inativo'}
+                </div>
             )
-        }
+        },
+        { header: "Nível de Acesso", accessor: "role" }
     ];
 
     if (loading) {
@@ -116,7 +125,7 @@ const UsersPage = () => {
             <div className="container mx-auto p-4">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6">Gerenciamento de Usuários</h1>
                 <FiltroUsersSkeleton />
-                <TabelaSkeleton colunas={3} linhas={itensPorPagina} />
+                <TabelaSkeleton colunas={4} linhas={itensPorPagina} />
             </div>
         );
     }
@@ -131,32 +140,24 @@ const UsersPage = () => {
                 <UserDetails
                     user={userSelecionado}
                     onVoltarClick={() => setUserSelecionado(null)}
+                    onUserUpdate={handleUserUpdate}
                 />
             ) : (
                 <>
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-3xl font-bold text-gray-800">Gerenciamento de Usuários</h1>
-                        <Link
-                            to="/users/criar"
-                            className="flex items-center gap-2 bg-secondary text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
-                        >
+                        <Link to="/users/criar" className="flex items-center gap-2 bg-secondary text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
                             <MdAdd /> Novo Usuário
                         </Link>
                     </div>
-
-                    <FiltroUsers
-                        filtros={filtros}
-                        onFiltroChange={handleFiltroChange}
-                    />
-
+                    <FiltroUsers filtros={filtros} onFiltroChange={handleFiltroChange} />
                     <ListaDeTalentos
                         talentos={paginacao.usersPaginados}
                         colunas={colunasDaTabela}
                         onTalentoClick={handleUserClick}
                         mensagemVazio="Nenhum usuário encontrado para os filtros selecionados."
                     />
-
-                    {paginacao.totalPaginas > 0 && (
+                    {paginacao.totalPaginas > 1 && (
                         <div className="flex justify-center mt-6">
                             <Stack spacing={2}>
                                 <Pagination

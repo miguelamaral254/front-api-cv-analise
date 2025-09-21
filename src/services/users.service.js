@@ -35,8 +35,8 @@ export const getUserById = async (id) => {
 export const updateUserProfile = async (id, profileData) => {
   try {
     const response = await apiClient.put(
-      `${USERS_ENDPOINT}/${id}/profile`,
-      profileData
+        `${USERS_ENDPOINT}/${id}/profile`,
+        profileData
     );
     return response.data;
   } catch (error) {
@@ -48,12 +48,25 @@ export const updateUserProfile = async (id, profileData) => {
 export const updateUserPassword = async (id, passwordData) => {
   try {
     const response = await apiClient.put(
-      `${USERS_ENDPOINT}/${id}/password`,
-      passwordData
+        `${USERS_ENDPOINT}/${id}/password`,
+        passwordData
     );
     return response.data;
   } catch (error) {
     console.error("Erro ao alterar senha:", error);
+    throw error;
+  }
+};
+
+export const updateUserStatus = async (id, isActive) => {
+  try {
+    const response = await apiClient.put(
+        `${USERS_ENDPOINT}/${id}/status`,
+        { is_active: isActive }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao atualizar status do usuário:", error);
     throw error;
   }
 };

@@ -5,7 +5,7 @@ const FormUsersPage = () => {
   const navigate = useNavigate();
 
   const handleSuccess = () => {
-    navigate('/talentos');
+    navigate('/users');
   };
 
   return (
