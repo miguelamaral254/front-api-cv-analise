@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { createVaga } from '../services/vagas.service';
 import CamposGeraisVaga from '../components/md-vagas/form/CamposGeraisVaga';
 import GerenciadorCriterios from '../components/md-vagas/form/GerenciadorCriterios';
-import { useSwal } from '../hooks/useSwal'; // Importe o seu hook
+import { useSwal } from '../hooks/useSwal';
 
 const FormVagasPage = () => {
   const navigate = useNavigate();
-  const { fireSuccess, fireError } = useSwal(); // Inicialize o hook
+  const { fireSuccess, fireError } = useSwal();
   const [formData, setFormData] = useState({
     titulo_vaga: '',
     descricao: '',
