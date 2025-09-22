@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSwal } from '../../hooks/useSwal';
-import { createUser } from '../../services/users.service';
+import { createUser, getRoles } from '../../services/users.service';
 import Select from 'react-select';
 import { PasswordField } from './PasswordField';
 
@@ -45,17 +45,39 @@ const PasswordStrengthMeter = ({ password }) => {
 
 export const UserForm = ({ onSuccess }) => {
     const { fireSuccess, fireError } = useSwal();
+    const [roles, setRoles] = useState([]);
+    const [isLoadingRoles, setIsLoadingRoles] = useState(true);
+    const [rolesError, setRolesError] = useState(null);
     const [formData, setFormData] = useState({
         nome: '',
         email: '',
         password: '',
         confirmPassword: '',
-        role: 'user1',
+        user_role_id: null,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    useEffect(() => {
+        const fetchRoles = async () => {
+            try {
+                const rolesData = await getRoles();
+                setRoles(rolesData);
+            } catch (error) {
+                setRolesError('Não foi possível carregar as permissões.');
+                console.error("Erro ao buscar roles:", error);
+            } finally {
+                setIsLoadingRoles(false);
+            }
+        };
+        fetchRoles();
+    }, []);
+
+    const roleOptions = useMemo(() => 
+        roles.map(role => ({ value: role.id, label: role.nome })), 
+    [roles]);
+
     const passwordsMatch = formData.password && formData.password === formData.confirmPassword;
-    const isFormValid = formData.nome && formData.email && formData.role && passwordsMatch && formData.password.length >= 8;
+    const isFormValid = formData.nome && formData.email && formData.user_role_id && passwordsMatch && formData.password.length >= 8;
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -63,18 +85,23 @@ export const UserForm = ({ onSuccess }) => {
     };
 
     const handleSelectChange = (selectedOption) => {
-        setFormData(prev => ({ ...prev, role: selectedOption?.value || null }));
+        setFormData(prev => ({ ...prev, user_role_id: selectedOption?.value || null }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isFormValid) {
-            return fireError("Formulário Inválido", "Por favor, preencha todos os campos corretamente e garanta que a senha seja forte.");
+            return fireError("Formulário Inválido", "Por favor, preencha todos os campos corretamente e garanta que as senhas coincidem.");
         }
         setIsSubmitting(true);
         try {
-            const { ...userData } = formData;
-            await createUser(userData);
+            const payload = {
+                nome: formData.nome,
+                email: formData.email,
+                password: formData.password,
+                user_role_id: formData.user_role_id,
+            };
+            await createUser(payload);
             fireSuccess('Sucesso!', 'Usuário criado com sucesso!')
                 .then(() => onSuccess());
         } catch (err) {
@@ -83,12 +110,6 @@ export const UserForm = ({ onSuccess }) => {
             setIsSubmitting(false);
         }
     };
-
-    const roleOptions = useMemo(() => [
-        { value: 'admin', label: 'Administrador' },
-        { value: 'user1', label: 'Recrutador' },
-        { value: 'user2', label: 'Usuário' },
-    ], []);
 
     return (
         <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-lg space-y-6">
@@ -101,10 +122,16 @@ export const UserForm = ({ onSuccess }) => {
                     inputId="role"
                     name="role"
                     options={roleOptions}
-                    value={roleOptions.find(opt => opt.value === formData.role)}
+                    isLoading={isLoadingRoles}
+                    value={roleOptions.find(opt => opt.value === formData.user_role_id)}
                     onChange={handleSelectChange}
                     placeholder="Selecione um tipo de permissão"
                     isClearable
+                    noOptionsMessage={() => {
+                        if (isLoadingRoles) return "Carregando permissões...";
+                        if (rolesError) return rolesError;
+                        return "Nenhuma permissão encontrada.";
+                    }}
                 />
             </div>
 
