@@ -32,6 +32,15 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
     return `${inicio} - ${fim}`;
   };
 
+  // --- FUNÇÃO ADICIONADA PARA CORRIGIR A URL ---
+  const formatarUrl = (url) => {
+    if (!url) return '#'; // Retorna um link seguro caso a URL seja nula
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url; // Se já tiver o protocolo, retorna como está
+    }
+    return `https://${url}`; // Adiciona o https:// no início
+  };
+
   const handleCopy = (text, type) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopiedText(type);
@@ -262,7 +271,8 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
                         <ul className="flex flex-wrap gap-3">
                           {talento.redes_sociais.map((rede, index) => (
                               <li key={index}>
-                                <a href={rede.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium shadow-sm hover:bg-blue-200 transition-colors break-all text-sm">
+                                {/* --- ALTERAÇÃO APLICADA AQUI --- */}
+                                <a href={formatarUrl(rede.url)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium shadow-sm hover:bg-blue-200 transition-colors break-all text-sm">
                                   {getSocialIcon(rede.icon)}
                                   <span>{rede.mediaName}</span>
                                 </a>

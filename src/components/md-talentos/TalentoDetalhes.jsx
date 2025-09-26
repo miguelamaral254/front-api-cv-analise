@@ -32,6 +32,14 @@ const TalentoDetalhes = ({ talento, onVoltarClick, onTalentoUpdate }) => {
     return `${inicio} - ${fim}`;
   };
 
+  const formatarUrl = (url) => {
+    if (!url) return '#';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return `https://${url}`;
+  };
+
   const handleCopy = (text, type) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopiedText(type);
@@ -250,7 +258,7 @@ const TalentoDetalhes = ({ talento, onVoltarClick, onTalentoUpdate }) => {
                     <ul className="flex flex-wrap gap-3">
                       {talento.redes_sociais.map((rede, index) => (
                           <li key={index}>
-                            <a href={rede.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium shadow-sm hover:bg-blue-200 transition-colors break-all text-sm">
+                            <a href={formatarUrl(rede.url)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium shadow-sm hover:bg-blue-200 transition-colors break-all text-sm">
                               {getSocialIcon(rede.icon)}
                               <span>{rede.mediaName}</span>
                             </a>
