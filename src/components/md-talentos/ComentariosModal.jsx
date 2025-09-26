@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth.js';
 import { useSwal } from '../../hooks/useSwal';
 import { addComment, deleteComment } from '../../services/talentos.service';
 import { MdClose, MdSend, MdDelete } from 'react-icons/md';

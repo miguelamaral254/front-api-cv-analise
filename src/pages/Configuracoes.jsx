@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth.js";
 import { PasswordForm } from "../components/md-users/PasswordForm";
 import { ProfileForm } from "../components/md-users/ProfileForm";
 

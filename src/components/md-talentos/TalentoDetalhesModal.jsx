@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth.js';
 import { useSwal } from '../../hooks/useSwal';
 import { getTalentoById, reprovarCandidato } from '../../services/talentos.service';
 import { MdWork, MdSchool, MdLanguage, MdQuestionAnswer, MdContentCopy, MdMailOutline, MdOutlineBookmarks, MdLocationOn, MdCalendarToday, MdFlag, MdComment, MdThumbDown, MdInfoOutline } from 'react-icons/md';

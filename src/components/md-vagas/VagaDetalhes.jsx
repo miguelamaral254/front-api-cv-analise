@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth.js';
 import { useSwal } from '../../hooks/useSwal';
 import { finalizeVaga } from '../../services/vagas.service';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';

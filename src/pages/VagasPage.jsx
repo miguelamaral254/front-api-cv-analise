@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth.js';
 import { getVagas, getVagaById } from '../services/vagas.service';
 import { getTalentoById } from '../services/talentos.service';
 import ListaDeVagas from '../components/md-vagas/ListaDeVagas';
