@@ -1,8 +1,7 @@
-import Select from 'react-select'; // 1. Importe o react-select
+import Select from 'react-select';
 
 const GerenciadorDinamico = ({ titulo, itens, setItens, campos, objetoInicial }) => {
   
-  // Handler para inputs normais (text, date, etc.)
   const handleItemChange = (index, e) => {
     const { name, value } = e.target;
     const novosItens = [...itens];
@@ -10,7 +9,6 @@ const GerenciadorDinamico = ({ titulo, itens, setItens, campos, objetoInicial })
     setItens(novosItens);
   };
 
-  // 2. Handler específico para o onChange do react-select
   const handleSelectChange = (index, name, selectedOption) => {
     const novosItens = [...itens];
     novosItens[index][name] = selectedOption ? selectedOption.value : '';
@@ -37,7 +35,6 @@ const GerenciadorDinamico = ({ titulo, itens, setItens, campos, objetoInicial })
                 <div key={campo.name}>
                   <label htmlFor={`${campo.name}-${index}`} className="block text-sm font-medium text-gray-700 mb-1">{campo.label}</label>
                   
-                  {/* 3. Lógica para renderizar o Select ou um input normal */}
                   {campo.type === 'react-select' ? (
                     <Select
                       name={campo.name}

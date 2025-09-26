@@ -23,8 +23,10 @@ const FormInscricaoPage = () => {
   const [loading, setLoading] = useState(true);
   const [languageOptions, setLanguageOptions] = useState([]);
 
+  // Adicionando os novos campos de endereço ao estado inicial
   const [formData, setFormData] = useState({
     nome: '', email: '', estado: null, cidade: null, telefone: '', sobre_mim: '',
+    cep: '', rua: '', numero: '', complemento: '', bairro: '',
     deficiencia: false,
     aceita_termos: false,
     confirmar_dados_verdadeiros: false,
@@ -148,7 +150,8 @@ const FormInscricaoPage = () => {
           .then(() => navigate('/vagas'));
     } catch (err) {
       console.error("ERRO AO ENVIAR:", err);
-      fireError("Ocorreu um erro!", "Não foi possível enviar sua inscrição. Por favor, tente novamente.", err);
+      const errorMessage = err.response?.data?.detail || "Não foi possível enviar sua inscrição. Por favor, tente novamente.";
+      fireError("Ocorreu um erro!", errorMessage, err);
     } finally {
       setIsSubmitting(false);
     }
@@ -250,3 +253,4 @@ const FormInscricaoPage = () => {
 };
 
 export default FormInscricaoPage;
+
