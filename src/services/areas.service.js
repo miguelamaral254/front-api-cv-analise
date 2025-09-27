@@ -1,6 +1,6 @@
 import apiClient from './api.service';
 
-const AREAS_ENDPOINT = '/areas';
+const AREAS_ENDPOINT = 'vagas/areas';
 
 /**
  * Busca todas as áreas cadastradas.

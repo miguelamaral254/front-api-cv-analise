@@ -11,6 +11,8 @@ import AdminRoute from "./AdminRoute";
 import Configuracoes from "../pages/Configuracoes";
 import ListaCandidatosPage from "../pages/ListaCandidatosPage";
 import UsersPage from "../pages/UsersPage.jsx";
+import AreasPage from "../pages/AreasPage.jsx";
+import FormAreasPage from "../pages/FormAreasPage.jsx";
 
 const AppRoutes = () => {
   return (
@@ -48,8 +50,18 @@ const AppRoutes = () => {
             path="/vagas/:vagaId/candidatos"
             element={<ListaCandidatosPage />}
           />
+            <Route
+                path="/areas"
+                element={<AreasPage />}
+            />
+            <Route
+                path="/areas/formulario"
+                element={<FormAreasPage />}
+            />
 
-          <Route
+
+
+            <Route
             path="/configuracoes"
             element={<p>Página de Configurações (Admin)</p>}
           />
