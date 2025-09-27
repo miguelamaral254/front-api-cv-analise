@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { MdArrowBack, MdBlock, MdCheckCircle } from 'react-icons/md';
+import { MdArrowBack, MdBlock, MdCheckCircle, MdEdit, MdSave, MdCancel } from 'react-icons/md';
 import { useSwal } from '../../hooks/useSwal';
-import { updateUserStatus } from '../../services/users.service';
+import { updateUserStatus, updateUserRole } from '../../services/users.service';
 
-const UserDetails = ({ user, onVoltarClick, onUserUpdate }) => {
+const UserDetails = ({ user, onVoltarClick, onUserUpdate, availableRoles }) => {
     const { fireConfirm, fireToast, fireError } = useSwal();
     const [isUpdating, setIsUpdating] = useState(false);
+
+    const [isEditingRole, setIsEditingRole] = useState(false);
+    const [selectedRole, setSelectedRole] = useState(user.role);
 
     const handleUpdateStatus = async (newStatus) => {
         const actionText = newStatus ? 'ativar' : 'inativar';
@@ -22,6 +25,32 @@ const UserDetails = ({ user, onVoltarClick, onUserUpdate }) => {
                 fireToast('success', `Usuário ${actionText === 'ativar' ? 'ativado' : 'inativado'} com sucesso!`);
             } catch (err) {
                 fireError('Erro!', `Não foi possível ${actionText} o usuário.`);
+            } finally {
+                setIsUpdating(false);
+            }
+        }
+    };
+
+    const handleCancelEditRole = () => {
+        setIsEditingRole(false);
+        setSelectedRole(user.role);
+    };
+
+    const handleSaveRole = async () => {
+        const result = await fireConfirm(
+            'Alterar Nível de Acesso',
+            `Deseja alterar o nível de ${user.nome} para "${selectedRole}"?`
+        );
+
+        if (result.isConfirmed) {
+            setIsUpdating(true);
+            try {
+                await updateUserRole(user.id, { role: selectedRole });
+                onUserUpdate({ ...user, role: selectedRole });
+                fireToast('success', 'Nível de acesso atualizado com sucesso!');
+                setIsEditingRole(false);
+            } catch (err) {
+                fireError('Erro!', 'Não foi possível atualizar o nível de acesso.');
             } finally {
                 setIsUpdating(false);
             }
@@ -74,23 +103,72 @@ const UserDetails = ({ user, onVoltarClick, onUserUpdate }) => {
 
                 <div className="border-t mt-6 pt-6">
                     <h2 className="text-xl font-bold text-gray-800 mb-4">Ações</h2>
-                    {user.is_active ? (
-                        <button
-                            onClick={() => handleUpdateStatus(false)}
-                            disabled={isUpdating}
-                            className="flex items-center justify-center gap-2 bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-400 w-40"
-                        >
-                            {isUpdating ? 'Salvando...' : <><MdBlock /> Inativar Usuário</>}
-                        </button>
-                    ) : (
-                        <button
-                            onClick={() => handleUpdateStatus(true)}
-                            disabled={isUpdating}
-                            className="flex items-center justify-center gap-2 bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 w-40"
-                        >
-                            {isUpdating ? 'Salvando...' : <><MdCheckCircle /> Ativar Usuário</>}
-                        </button>
-                    )}
+                    <div className="flex items-start gap-8">
+                        <div>
+                            <h3 className="text-md font-semibold text-gray-700 mb-2">Status do Usuário</h3>
+                            {user.is_active ? (
+                                <button
+                                    onClick={() => handleUpdateStatus(false)}
+                                    disabled={isUpdating}
+                                    className="flex items-center justify-center gap-2 bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-400 w-44"
+                                >
+                                    {isUpdating ? 'Salvando...' : <><MdBlock /> Inativar</>}
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => handleUpdateStatus(true)}
+                                    disabled={isUpdating}
+                                    className="flex items-center justify-center gap-2 bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 w-44"
+                                >
+                                    {isUpdating ? 'Salvando...' : <><MdCheckCircle /> Ativar</>}
+                                </button>
+                            )}
+                        </div>
+
+                        <div>
+                            <h3 className="text-md font-semibold text-gray-700 mb-2">Nível de Acesso</h3>
+                            {!isEditingRole ? (
+                                <button
+                                    onClick={() => setIsEditingRole(true)}
+                                    disabled={isUpdating}
+                                    className="flex items-center justify-center gap-2 bg-gray-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors disabled:bg-gray-400"
+                                >
+                                    <MdEdit /> Alterar Nível
+                                </button>
+                            ) : (
+                                <div className="flex items-center gap-4">
+                                    <select
+                                        value={selectedRole}
+                                        onChange={(e) => setSelectedRole(e.target.value)}
+                                        disabled={isUpdating}
+                                        className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                                    >
+                                        {availableRoles.map(role => (
+                                            <option key={role.id} value={role.nome}>{role.nome}</option>
+                                        ))}
+                                    </select>
+
+                                    {selectedRole !== user.role && (
+                                        <button
+                                            onClick={handleSaveRole}
+                                            disabled={isUpdating}
+                                            className="flex items-center gap-2 bg-primary text-white font-semibold rounded-md py-2 px-4 hover:bg-blue-900 disabled:bg-gray-400"
+                                        >
+                                            <MdSave /> Salvar
+                                        </button>
+                                    )}
+
+                                    <button
+                                        onClick={handleCancelEditRole}
+                                        disabled={isUpdating}
+                                        className="flex items-center gap-2 bg-gray-200 text-gray-800 rounded-md py-2 px-4 hover:bg-gray-300 disabled:opacity-50"
+                                    >
+                                        <MdCancel /> Cancelar
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

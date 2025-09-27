@@ -1,22 +1,21 @@
-// src/pages/AreasPage.jsx
-
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAreas, updateArea, deleteArea } from '../services/areas.service';
 import GridDefault from '../components/global/GridDefault';
 import DetalhesAreaModal from '../components/md-areas/DetalhesAreaModal';
-import { useSwal } from '../hooks/useSwal'; // Importe seu hook
+import { useSwal } from '../hooks/useSwal';
 import { MdAdd, MdSearch } from 'react-icons/md';
 import ListaDeTalentosSkeleton from '../components/md-talentos/ListaDeTalentosSkeleton';
 
 const AreasPage = () => {
     const navigate = useNavigate();
-    const { fireToast, fireError } = useSwal(); // Instancie o hook
+    const { fireToast, fireError } = useSwal();
     const [areas, setAreas] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [areaSelecionada, setAreaSelecionada] = useState(null);
     const [filtroNome, setFiltroNome] = useState('');
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
     const fetchAreas = async () => {
         setIsLoading(true);
@@ -34,6 +33,14 @@ const AreasPage = () => {
         fetchAreas();
     }, []);
 
+    const handleSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    };
+
     const areasFiltradas = useMemo(() => {
         if (!filtroNome) {
             return areas;
@@ -42,6 +49,22 @@ const AreasPage = () => {
             area.nome.toLowerCase().includes(filtroNome.toLowerCase())
         );
     }, [areas, filtroNome]);
+
+    const sortedAreas = useMemo(() => {
+        let sortableAreas = [...areasFiltradas];
+        if (sortConfig.key) {
+            sortableAreas.sort((a, b) => {
+                if (a[sortConfig.key] < b[sortConfig.key]) {
+                    return sortConfig.direction === 'ascending' ? -1 : 1;
+                }
+                if (a[sortConfig.key] > b[sortConfig.key]) {
+                    return sortConfig.direction === 'ascending' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return sortableAreas;
+    }, [areasFiltradas, sortConfig]);
 
     const handleRowClick = (area) => {
         setAreaSelecionada(area);
@@ -90,10 +113,12 @@ const AreasPage = () => {
         }
         return (
             <GridDefault
-                dados={areasFiltradas}
+                dados={sortedAreas}
                 colunas={colunas}
                 onRowClick={handleRowClick}
                 mensagemVazio={filtroNome ? "Nenhuma área encontrada com este nome." : "Nenhuma área de atuação cadastrada."}
+                onSort={handleSort}
+                sortConfig={sortConfig}
             />
         );
     };

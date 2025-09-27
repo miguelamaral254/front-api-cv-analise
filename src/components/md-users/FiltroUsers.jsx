@@ -1,12 +1,18 @@
+// src/components/FiltroUsers.jsx
+
 import Select from 'react-select';
+import { useMemo } from 'react'; // Importe o useMemo
 
-const FiltroUsers = ({ filtros, onFiltroChange }) => {
+const FiltroUsers = ({ filtros, onFiltroChange, rolesDisponiveis }) => {
 
-    const roleOptions = [
-        { value: 'admin', label: 'Admin' },
-        { value: 'user1', label: 'User1' },
-        // Adicione outras roles se existirem
-    ];
+    // Transforma a lista de roles recebida em opções para o Select
+    const roleOptions = useMemo(() => {
+        if (!rolesDisponiveis) return [];
+        return rolesDisponiveis.map(role => ({
+            value: role,
+            label: role.charAt(0).toUpperCase() + role.slice(1) // Deixa a primeira letra maiúscula (ex: Admin)
+        }));
+    }, [rolesDisponiveis]);
 
     return (
         <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 mb-6">
@@ -21,7 +27,7 @@ const FiltroUsers = ({ filtros, onFiltroChange }) => {
                 />
                 <Select
                     name="role"
-                    options={roleOptions}
+                    options={roleOptions} // Agora usa as opções dinâmicas
                     className="basic-single-select"
                     classNamePrefix="select"
                     placeholder="Filtrar por nível..."

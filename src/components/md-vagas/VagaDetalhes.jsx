@@ -9,7 +9,7 @@ import { MdPeople, MdLock } from 'react-icons/md';
 const VagaDetalhes = ({ vaga, onVoltarClick, onListarClick, onVagaFinalizada }) => {
   const { user } = useAuth();
   const { fireConfirm, fireToast, fireError } = useSwal();
-  const isRecruiter = user && (user.role === 'admin' || user.role === 'user1');
+  const isRecruiter = user && (user.role === 'admin' || user.role === 'recrutador');
 
   const handleFinalizarVaga = async () => {
     const result = await fireConfirm(

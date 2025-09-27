@@ -15,6 +15,7 @@ const TalentosPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
   const initialStateFiltros = {
     termo: '',
@@ -65,6 +66,14 @@ const TalentosPage = () => {
     setPaginaAtual(value);
   };
 
+  const handleSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
   const handleTalentoClick = async (talentoSummary) => {
     setIsLoadingDetails(true);
     setError(null);
@@ -97,12 +106,28 @@ const TalentosPage = () => {
     });
   }, [talentos, filtros]);
 
+  const sortedTalentos = useMemo(() => {
+    let sortableTalentos = [...talentosFiltrados];
+    if (sortConfig.key !== null) {
+      sortableTalentos.sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableTalentos;
+  }, [talentosFiltrados, sortConfig]);
+
   const paginacao = useMemo(() => {
-    const totalPaginas = Math.ceil(talentosFiltrados.length / itensPorPagina);
+    const totalPaginas = Math.ceil(sortedTalentos.length / itensPorPagina);
     const indiceInicial = (paginaAtual - 1) * itensPorPagina;
-    const talentosPaginados = talentosFiltrados.slice(indiceInicial, indiceInicial + itensPorPagina);
+    const talentosPaginados = sortedTalentos.slice(indiceInicial, indiceInicial + itensPorPagina);
     return { totalPaginas, talentosPaginados };
-  }, [talentosFiltrados, paginaAtual, itensPorPagina]);
+  }, [sortedTalentos, paginaAtual, itensPorPagina]);
 
   const colunasDaTabela = [
     { header: "Nome", accessor: "nome" },
@@ -157,6 +182,8 @@ const TalentosPage = () => {
                   colunas={colunasDaTabela}
                   onTalentoClick={handleTalentoClick}
                   mensagemVazio="Nenhum talento encontrado com os filtros aplicados."
+                  onSort={handleSort}
+                  sortConfig={sortConfig}
               />
               {paginacao.totalPaginas > 0 && (
                   <div className="flex justify-center mt-6">

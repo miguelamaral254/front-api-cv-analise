@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { getUsers, getUserById } from '../services/users.service';
+import { getUsers, getUserById, getRoles } from '../services/users.service';
 
 import ListaDeTalentos from '../components/md-talentos/ListaDeTalentos';
 import TabelaSkeleton from '../components/global/skeletons/TabelaSkeleton';
@@ -14,6 +14,7 @@ import { MdAdd } from 'react-icons/md';
 
 const UsersPage = () => {
     const [users, setUsers] = useState([]);
+    const [availableRoles, setAvailableRoles] = useState([]);
     const [userSelecionado, setUserSelecionado] = useState(null);
 
     const [loading, setLoading] = useState(true);
@@ -22,27 +23,34 @@ const UsersPage = () => {
 
     const initialFiltrosState = { termo: '', role: '' };
     const [filtros, setFiltros] = useState(initialFiltrosState);
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
     const [paginaAtual, setPaginaAtual] = useState(1);
     const itensPorPagina = 10;
 
     useEffect(() => {
-        const fetchUsers = async () => {
+        const fetchData = async () => {
             setLoading(true);
             try {
-                const data = await getUsers();
-                setUsers(data);
+                const [usersData, rolesData] = await Promise.all([getUsers(), getRoles()]);
+                setUsers(usersData);
+                setAvailableRoles(rolesData);
             } catch (err) {
-                setError("Não foi possível carregar os usuários.");
+                setError("Não foi possível carregar os dados da página.");
             } finally {
                 setLoading(false);
             }
         };
-        // Carrega os dados apenas quando a view de lista estiver ativa
         if (!userSelecionado) {
-            fetchUsers();
+            fetchData();
         }
     }, [userSelecionado]);
+
+    const rolesUnicos = useMemo(() => {
+        if (!users || users.length === 0) return [];
+        const todosOsRoles = users.map(user => user.role).filter(Boolean);
+        return [...new Set(todosOsRoles)];
+    }, [users]);
 
     const handleUserClick = async (user) => {
         setIsDetailLoading(true);
@@ -58,7 +66,6 @@ const UsersPage = () => {
 
     const handleUserUpdate = (updatedUser) => {
         setUserSelecionado(updatedUser);
-        // Atualiza a lista principal para refletir a mudança de status sem precisar recarregar a página
         setUsers(currentUsers =>
             currentUsers.map(u => u.id === updatedUser.id ? updatedUser : u)
         );
@@ -73,6 +80,14 @@ const UsersPage = () => {
         setPaginaAtual(value);
     };
 
+    const handleSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    };
+
     const usersFiltrados = useMemo(() => {
         return users.filter(user => {
             const termoBusca = filtros.termo.toLowerCase();
@@ -84,16 +99,33 @@ const UsersPage = () => {
         });
     }, [users, filtros]);
 
+    const sortedUsers = useMemo(() => {
+        let sortableUsers = [...usersFiltrados];
+        if (sortConfig.key !== null) {
+            sortableUsers.sort((a, b) => {
+                if (a[sortConfig.key] < b[sortConfig.key]) {
+                    return sortConfig.direction === 'ascending' ? -1 : 1;
+                }
+                if (a[sortConfig.key] > b[sortConfig.key]) {
+                    return sortConfig.direction === 'ascending' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return sortableUsers;
+    }, [usersFiltrados, sortConfig]);
+
     const paginacao = useMemo(() => {
-        const totalPaginas = Math.ceil(usersFiltrados.length / itensPorPagina);
+        const totalPaginas = Math.ceil(sortedUsers.length / itensPorPagina);
         const indiceInicial = (paginaAtual - 1) * itensPorPagina;
-        const usersPaginados = usersFiltrados.slice(indiceInicial, indiceInicial + itensPorPagina);
+        const usersPaginados = sortedUsers.slice(indiceInicial, indiceInicial + itensPorPagina);
         return { totalPaginas, usersPaginados };
-    }, [usersFiltrados, paginaAtual, itensPorPagina]);
+    }, [sortedUsers, paginaAtual, itensPorPagina]);
 
     const colunasDaTabela = [
         {
             header: "Usuário",
+            accessor: "nome",
             render: (user) => (
                 <div className="flex items-center">
                     <img
@@ -108,6 +140,7 @@ const UsersPage = () => {
         { header: "Email", accessor: "email" },
         {
             header: "Status",
+            accessor: "is_active",
             render: (user) => (
                 <div className={`flex items-center gap-2 px-2.5 py-1 text-sm rounded-full font-medium w-fit ${
                     user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -141,6 +174,7 @@ const UsersPage = () => {
                     user={userSelecionado}
                     onVoltarClick={() => setUserSelecionado(null)}
                     onUserUpdate={handleUserUpdate}
+                    availableRoles={availableRoles}
                 />
             ) : (
                 <>
@@ -150,12 +184,18 @@ const UsersPage = () => {
                             <MdAdd /> Novo Usuário
                         </Link>
                     </div>
-                    <FiltroUsers filtros={filtros} onFiltroChange={handleFiltroChange} />
+                    <FiltroUsers
+                        filtros={filtros}
+                        onFiltroChange={handleFiltroChange}
+                        rolesDisponiveis={rolesUnicos}
+                    />
                     <ListaDeTalentos
                         talentos={paginacao.usersPaginados}
                         colunas={colunasDaTabela}
                         onTalentoClick={handleUserClick}
                         mensagemVazio="Nenhum usuário encontrado para os filtros selecionados."
+                        onSort={handleSort}
+                        sortConfig={sortConfig}
                     />
                     {paginacao.totalPaginas > 1 && (
                         <div className="flex justify-center mt-6">

@@ -25,6 +25,7 @@ const ListaCandidatosPage = () => {
     const [error, setError] = useState(null);
     const [paginaAtual, setPaginaAtual] = useState(1);
     const itensPorPagina = 10;
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
     const initialStateFiltros = {
         termo: '',
@@ -51,6 +52,14 @@ const ListaCandidatosPage = () => {
 
     const handlePaginaChange = (event, value) => {
         setPaginaAtual(value);
+    };
+
+    const handleSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
     };
 
     const dadosBase = useMemo(() => ranking || talentos, [ranking, talentos]);
@@ -98,12 +107,28 @@ const ListaCandidatosPage = () => {
         });
     }, [dadosBase, filtros]);
 
+    const sortedTalentos = useMemo(() => {
+        let sortableItems = [...talentosFiltrados];
+        if (sortConfig.key) {
+            sortableItems.sort((a, b) => {
+                if (a[sortConfig.key] < b[sortConfig.key]) {
+                    return sortConfig.direction === 'ascending' ? -1 : 1;
+                }
+                if (a[sortConfig.key] > b[sortConfig.key]) {
+                    return sortConfig.direction === 'ascending' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return sortableItems;
+    }, [talentosFiltrados, sortConfig]);
+
     const paginacao = useMemo(() => {
-        const totalPaginas = Math.ceil(talentosFiltrados.length / itensPorPagina);
+        const totalPaginas = Math.ceil(sortedTalentos.length / itensPorPagina);
         const indiceInicial = (paginaAtual - 1) * itensPorPagina;
-        const itensPaginados = talentosFiltrados.slice(indiceInicial, indiceInicial + itensPorPagina);
+        const itensPaginados = sortedTalentos.slice(indiceInicial, indiceInicial + itensPorPagina);
         return { totalPaginas, itensPaginados };
-    }, [talentosFiltrados, paginaAtual, itensPorPagina]);
+    }, [sortedTalentos, paginaAtual, itensPorPagina]);
 
     const handleAnalisar = async (e) => {
         if (e) e.preventDefault();
@@ -155,7 +180,10 @@ const ListaCandidatosPage = () => {
 
     const colunasListaCompleta = [
         { header: 'Nome', accessor: 'nome' },
-        { header: 'Status', render: (talento) => (
+        {
+            header: 'Status',
+            accessor: 'ativo',
+            render: (talento) => (
                 <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                     talento.ativo
                         ? 'bg-green-100 text-green-800'
@@ -163,17 +191,18 @@ const ListaCandidatosPage = () => {
                 }`}>
                 {talento.ativo ? 'Ativo' : 'Reprovado'}
             </span>
-            )},
+            )
+        },
         { header: 'Email', accessor: 'email' },
         { header: "Cidade", accessor: "cidade" },
         { header: "Área", accessor: "nome_area" },
-        { header: 'Data de Inscrição', render: (talento) => new Date(talento.criado_em).toLocaleDateString() }
+        { header: 'Data de Inscrição', accessor: 'criado_em', render: (talento) => new Date(talento.criado_em).toLocaleDateString() }
     ];
 
     const colunasRanking = [
-        { header: 'Rank', render: (talento, index) => <span className="font-bold">#{(paginaAtual - 1) * itensPorPagina + index + 1}</span> },
+        { header: 'Rank', accessor: 'score_final', render: (talento, index) => <span className="font-bold">#{(paginaAtual - 1) * itensPorPagina + index + 1}</span> },
         { header: 'Nome', accessor: 'nome' },
-        { header: 'Score Final', render: (talento) => <span className="font-bold text-green-700">{talento.score_final.toFixed(2)}%</span> }
+        { header: 'Score Final', accessor: 'score_final', render: (talento) => <span className="font-bold text-green-700">{talento.score_final.toFixed(2)}%</span> }
     ];
 
     if (isLoading) {
@@ -212,6 +241,8 @@ const ListaCandidatosPage = () => {
                     colunas={ranking ? colunasRanking : colunasListaCompleta}
                     onTalentoClick={(talento) => handleTalentoClick(talento.id)}
                     mensagemVazio={temFiltroAtivo ? "Nenhum candidato encontrado com os filtros aplicados." : "Nenhum candidato se inscreveu para esta vaga ainda."}
+                    onSort={handleSort}
+                    sortConfig={sortConfig}
                 />
                 {paginacao.totalPaginas > 0 && (
                     <div className="flex justify-center mt-6">

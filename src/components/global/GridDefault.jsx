@@ -1,16 +1,33 @@
-const GridDefault = ({ dados, colunas, onRowClick, mensagemVazio }) => {
+const GridDefault = ({ dados, colunas, onRowClick, mensagemVazio, onSort, sortConfig }) => {
     if (!dados || dados.length === 0) {
         return <p className="text-center text-gray-600 py-10">{mensagemVazio}</p>;
     }
+
+    const getSortIcon = (columnKey) => {
+        if (!sortConfig || sortConfig.key !== columnKey) {
+            return <span className="ml-1 text-gray-400">↕</span>;
+        }
+        if (sortConfig.direction === 'ascending') {
+            return <span className="ml-1">▲</span>;
+        }
+        return <span className="ml-1">▼</span>;
+    };
 
     return (
         <div className="overflow-x-auto">
             <table className="min-w-full bg-white rounded-lg shadow">
                 <thead className="bg-secondary">
                 <tr>
-                    {colunas.map((coluna, index) => (
-                        <th key={index} className="py-3 px-4 text-left font-semibold text-white">
-                            {coluna.header}
+                    {colunas.map((coluna) => (
+                        <th
+                            key={coluna.header}
+                            className={`py-3 px-4 text-left font-semibold text-white select-none ${coluna.accessor ? 'cursor-pointer hover:bg-blue-800 transition-colors' : ''}`}
+                            onClick={() => coluna.accessor && onSort(coluna.accessor)}
+                        >
+                            <div className="flex items-center">
+                                {coluna.header}
+                                {coluna.accessor && getSortIcon(coluna.accessor)}
+                            </div>
                         </th>
                     ))}
                 </tr>

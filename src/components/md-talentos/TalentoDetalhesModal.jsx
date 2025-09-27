@@ -11,7 +11,7 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
   const [isComentariosModalOpen, setIsComentariosModalOpen] = useState(false);
   const { user } = useAuth();
   const { fireConfirm, fireToast, fireError } = useSwal();
-  const isRecruiter = user && (user.role === 'admin' || user.role === 'user1');
+  const isRecruiter = user && (user.role === 'admin' || user.role === 'recrutador');
 
   const getSocialIcon = (iconName) => {
     const IconComponent = FaIcons[iconName];

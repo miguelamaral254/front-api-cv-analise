@@ -81,6 +81,18 @@ export const getRoles = async () => {
     throw error;
   }
 };
+export const updateUserRole = async (id, roleData) => {
+  try {
+    const response = await apiClient.put(
+        `${USERS_ENDPOINT}/${id}/role`,
+        roleData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao atualizar role do usuário:", error);
+    throw error;
+  }
+};
 
 export const createRole = async (roleData) => {
   try {
