@@ -59,8 +59,7 @@ const NavBar = () => {
             text: "Gerenciar Areas",
             path: "/areas",
             icon: <PersonAddIcon/>,
-            auth: true,
-            admin: true,
+            auth: true
         },
     ];
 
@@ -152,15 +151,16 @@ const NavBar = () => {
                                         <NavLink to="/vagas/criar" className={linkClass}>
                                             Criar Vaga
                                         </NavLink>
+                                        <NavLink to="/areas" className={linkClass}>
+                                            Gerenciar Areas
+                                        </NavLink>
 
                                         {user.role === "admin" && (
                                             <>
                                                 <NavLink to="/users" className={linkClass}>
                                                     Gerenciar Usuários
                                                 </NavLink>
-                                                <NavLink to="/areas" className={linkClass}>
-                                                    Gerenciar Areas
-                                                </NavLink>
+                                                
                                             </>
                                         )}
                                     </>

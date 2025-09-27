@@ -5,10 +5,12 @@ import { getTalentoById, reprovarCandidato } from '../../services/talentos.servi
 import { MdWork, MdSchool, MdLanguage, MdQuestionAnswer, MdContentCopy, MdMailOutline, MdOutlineBookmarks, MdLocationOn, MdCalendarToday, MdFlag, MdComment, MdThumbDown, MdInfoOutline } from 'react-icons/md';
 import * as FaIcons from 'react-icons/fa';
 import ComentariosModal from './ComentariosModal';
+import ReprovandoCandidatoModal from './ReprovandoCandidatoModal.jsx';
 
 const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
   const [copiedText, setCopiedText] = useState('');
   const [isComentariosModalOpen, setIsComentariosModalOpen] = useState(false);
+  const [isReproving, setIsReproving] = useState(false);
   const { user } = useAuth();
   const { fireConfirm, fireToast, fireError } = useSwal();
   const isRecruiter = user && (user.role === 'admin' || user.role === 'recrutador');
@@ -32,13 +34,12 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
     return `${inicio} - ${fim}`;
   };
 
-  // --- FUNÇÃO ADICIONADA PARA CORRIGIR A URL ---
   const formatarUrl = (url) => {
-    if (!url) return '#'; // Retorna um link seguro caso a URL seja nula
+    if (!url) return '#';
     if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url; // Se já tiver o protocolo, retorna como está
+      return url;
     }
-    return `https://${url}`; // Adiciona o https:// no início
+    return `https://${url}`;
   };
 
   const handleCopy = (text, type) => {
@@ -68,12 +69,15 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
     );
 
     if (result.isConfirmed) {
+      setIsReproving(true);
       try {
         await reprovarCandidato(talento.id);
         fireToast('success', 'Candidato reprovado com sucesso!');
         handleRefreshData();
       } catch (err) {
         fireError('Erro!', 'Não foi possível reprovar o candidato.',err);
+      } finally {
+        setIsReproving(false);
       }
     }
   };
@@ -81,6 +85,7 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
 
   return (
       <>
+        {isReproving && <ReprovandoCandidatoModal />}
         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4 animate-fade-in">
           <div className="container mx-auto p-0 lg:p-6 bg-gray-50 max-h-[100vh] overflow-y-auto rounded-2xl scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
             <div className="bg-white shadow-xl rounded-2xl p-6 md:p-10 max-w-7xl mx-auto">
@@ -116,8 +121,12 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
                 </div>
                 <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full sm:w-auto flex-shrink-0">
                   {isRecruiter && talento.ativo && (
-                      <button onClick={handleReprovar} className="flex items-center gap-2 bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors whitespace-nowrap text-sm">
-                        <MdThumbDown /> Reprovar
+                      <button
+                          onClick={handleReprovar}
+                          disabled={isReproving}
+                          className="flex items-center gap-2 bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors whitespace-nowrap text-sm disabled:bg-gray-400"
+                      >
+                        {isReproving ? 'Reprovando...' : <><MdThumbDown /> Reprovar</>}
                       </button>
                   )}
                   <button onClick={onClose} className="bg-gray-100 text-gray-600 px-6 py-2 rounded-lg hover:bg-red-100 hover:text-red-700 transition-colors duration-200 font-medium flex-shrink-0">
@@ -271,7 +280,6 @@ const TalentoDetalhesModal = ({ talento, onClose, onDataChange }) => {
                         <ul className="flex flex-wrap gap-3">
                           {talento.redes_sociais.map((rede, index) => (
                               <li key={index}>
-                                {/* --- ALTERAÇÃO APLICADA AQUI --- */}
                                 <a href={formatarUrl(rede.url)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium shadow-sm hover:bg-blue-200 transition-colors break-all text-sm">
                                   {getSocialIcon(rede.icon)}
                                   <span>{rede.mediaName}</span>

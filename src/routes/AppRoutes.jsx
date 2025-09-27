@@ -39,6 +39,14 @@ const AppRoutes = () => {
           path="/configuracoes"
           element={<p>Página de Configurações (usuario)</p>}
         />
+          <Route
+              path="/areas"
+              element={<AreasPage />}
+          />
+          <Route
+              path="/areas/formulario"
+              element={<FormAreasPage />}
+          />
 
         <Route element={<AdminRoute />}>
           <Route path="/users/criar" element={<FormUsersPage />} />
@@ -50,17 +58,6 @@ const AppRoutes = () => {
             path="/vagas/:vagaId/candidatos"
             element={<ListaCandidatosPage />}
           />
-            <Route
-                path="/areas"
-                element={<AreasPage />}
-            />
-            <Route
-                path="/areas/formulario"
-                element={<FormAreasPage />}
-            />
-
-
-
             <Route
             path="/configuracoes"
             element={<p>Página de Configurações (Admin)</p>}

@@ -197,7 +197,7 @@ const UsersPage = () => {
                         onSort={handleSort}
                         sortConfig={sortConfig}
                     />
-                    {paginacao.totalPaginas > 1 && (
+                    {paginacao.totalPaginas > 0 && (
                         <div className="flex justify-center mt-6">
                             <Stack spacing={2}>
                                 <Pagination
