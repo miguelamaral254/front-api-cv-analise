@@ -7,19 +7,20 @@ import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
 import FiltroTalentosSkeleton from '../components/md-talentos/FiltroTalentosSkeleton';
 import ListaDeTalentosSkeleton from '../components/md-talentos/ListaDeTalentosSkeleton';
-
+import LoadingModal from '../components/global/LoadingModal.jsx';
 
 const TalentosPage = () => {
   const [talentos, setTalentos] = useState([]);
   const [talentoSelecionado, setTalentoSelecionado] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 
   const initialStateFiltros = {
     termo: '',
     cidades: [],
     vaga_id: '',
-    areaNomes: []
+    areaNomes: [],
   };
   const [filtros, setFiltros] = useState(initialStateFiltros);
   const [paginaAtual, setPaginaAtual] = useState(1);
@@ -32,7 +33,7 @@ const TalentosPage = () => {
         const data = await getTalentos();
         setTalentos(data);
       } catch (err) {
-        setError("Não foi possível carregar os talentos.", err);
+        setError('Não foi possível carregar os talentos.', err);
       } finally {
         setLoading(false);
       }
@@ -65,15 +66,15 @@ const TalentosPage = () => {
   };
 
   const handleTalentoClick = async (talentoSummary) => {
-    setLoading(true);
+    setIsLoadingDetails(true);
     setError(null);
     try {
       const dataCompleta = await getTalentoById(talentoSummary.id);
       setTalentoSelecionado(dataCompleta);
     } catch (err) {
-      setError("Não foi possível carregar os detalhes do talento.");
+      setError('Não foi possível carregar os detalhes do talento.');
     } finally {
-      setLoading(false);
+      setIsLoadingDetails(false);
     }
   };
 
@@ -111,7 +112,6 @@ const TalentosPage = () => {
     { header: "Vaga ID", accessor: "vaga_id" },
   ];
 
-
   if (loading && !talentoSelecionado && talentos.length === 0) {
     return (
         <div className="container mx-auto p-4">
@@ -132,6 +132,8 @@ const TalentosPage = () => {
 
   return (
       <div className="container mx-auto p-4">
+        {isLoadingDetails && <LoadingModal />}
+
         {talentoSelecionado ? (
             <TalentoDetalhes
                 talento={talentoSelecionado}

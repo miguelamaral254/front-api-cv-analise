@@ -8,6 +8,8 @@ import FiltroTalentos from '../components/md-talentos/FiltroTalentos';
 import { MdArrowBack, MdAnalytics, MdFormatListBulleted } from 'react-icons/md';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
+import FiltroTalentosSkeleton from '../components/md-talentos/FiltroTalentosSkeleton';
+import ListaDeTalentosSkeleton from '../components/md-talentos/ListaDeTalentosSkeleton';
 
 const ListaCandidatosPage = () => {
     const { vagaId } = useParams();
@@ -67,7 +69,7 @@ const ListaCandidatosPage = () => {
         setFiltros(prev => ({ ...prev, [name]: value }));
         setPaginaAtual(1);
     };
-    
+
     const handleLimparFiltros = () => {
         setFiltros(initialStateFiltros);
         setPaginaAtual(1);
@@ -77,20 +79,20 @@ const ListaCandidatosPage = () => {
         return dadosBase.filter(talento => {
             const termoBusca = filtros.termo.toLowerCase();
             const matchTermo = filtros.termo
-              ? (talento.nome && talento.nome.toLowerCase().includes(termoBusca)) || 
+                ? (talento.nome && talento.nome.toLowerCase().includes(termoBusca)) ||
                 (talento.email && talento.email.toLowerCase().includes(termoBusca))
-              : true;
+                : true;
             const matchCidades = filtros.cidades.length > 0
-              ? filtros.cidades.includes(talento.cidade)
-              : true;
+                ? filtros.cidades.includes(talento.cidade)
+                : true;
             const matchAreas = filtros.areaNomes.length > 0
-              ? filtros.areaNomes.includes(talento.nome_area)
-              : true;
+                ? filtros.areaNomes.includes(talento.nome_area)
+                : true;
             const matchStatus = filtros.status === 'todos'
-              ? true
-              : filtros.status === 'ativos'
-                ? talento.ativo
-                : !talento.ativo;
+                ? true
+                : filtros.status === 'ativos'
+                    ? talento.ativo
+                    : !talento.ativo;
 
             return matchTermo && matchCidades && matchAreas && matchStatus;
         });
@@ -132,7 +134,7 @@ const ListaCandidatosPage = () => {
             setIsTalentoLoading(false);
         }
     };
-    
+
     const handleModalDataChange = (talentoAtualizado) => {
         setTalentos(prevTalentos =>
             prevTalentos.map(t => (t.id === talentoAtualizado.id ? talentoAtualizado : t))
@@ -154,14 +156,14 @@ const ListaCandidatosPage = () => {
     const colunasListaCompleta = [
         { header: 'Nome', accessor: 'nome' },
         { header: 'Status', render: (talento) => (
-            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                talento.ativo 
-                ? 'bg-green-100 text-green-800' 
-                : 'bg-red-100 text-red-800'
-            }`}>
+                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                    talento.ativo
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                }`}>
                 {talento.ativo ? 'Ativo' : 'Reprovado'}
             </span>
-        )},
+            )},
         { header: 'Email', accessor: 'email' },
         { header: "Cidade", accessor: "cidade" },
         { header: "Área", accessor: "nome_area" },
@@ -174,8 +176,30 @@ const ListaCandidatosPage = () => {
         { header: 'Score Final', render: (talento) => <span className="font-bold text-green-700">{talento.score_final.toFixed(2)}%</span> }
     ];
 
+    if (isLoading) {
+        return (
+            <main className="bg-gray-50 min-h-screen py-12 px-4 flex justify-center items-start">
+                <div className="bg-white shadow-xl rounded-2xl p-6 md:p-10 max-w-5xl w-full mx-auto animate-fade-in">
+                    <div className="flex justify-between items-center mb-8 border-b pb-4">
+                        <div>
+                            <h1 className="text-3xl font-extrabold text-gray-900">Candidatos Aplicados</h1>
+                            <p className="text-gray-500">Carregando informações...</p>
+                        </div>
+                        <button onClick={() => navigate(-1)} className="flex items-center gap-2 bg-gray-100 text-gray-600 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+                            <MdArrowBack /> Voltar
+                        </button>
+                    </div>
+                    <FiltroTalentosSkeleton />
+                    <div className="my-6 flex justify-center">
+                        <div className="h-10 bg-gray-300 rounded-lg w-48 animate-pulse"></div>
+                    </div>
+                    <ListaDeTalentosSkeleton colunas={colunasListaCompleta.length} linhas={itensPorPagina} />
+                </div>
+            </main>
+        );
+    }
+
     const renderContent = () => {
-        if (isLoading) return <p className="text-center text-gray-700 font-semibold p-10">Carregando...</p>;
         if (isAnalyzing) return <p className="text-center text-gray-700 font-semibold p-10">🔍 Analisando...</p>;
         if (error) return <p className="text-center text-red-600 font-semibold p-10">{error}</p>;
 
@@ -231,15 +255,15 @@ const ListaCandidatosPage = () => {
 
                     <div className="my-6 flex justify-center gap-4">
                         {ranking ? (
-                           <button onClick={showListaCompleta} className="flex items-center gap-2 bg-secondary text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-700">
-                              <MdFormatListBulleted /> Ver Lista Completa
-                           </button>
-                        ) : (
-                          talentos.length > 0 && (
-                            <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 bg-primary text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-900">
-                              <MdAnalytics /> Analisar e Rankear
+                            <button onClick={showListaCompleta} className="flex items-center gap-2 bg-secondary text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-700">
+                                <MdFormatListBulleted /> Ver Lista Completa
                             </button>
-                          )
+                        ) : (
+                            talentos.length > 0 && (
+                                <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 bg-primary text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-900">
+                                    <MdAnalytics /> Analisar e Rankear
+                                </button>
+                            )
                         )}
                     </div>
                     {renderContent()}

@@ -2,8 +2,11 @@ const ItemCriterio = ({ index, criterio, onCriterioChange, onColunaChange, onRem
   const colunasDisponiveis = [
     { id: 'sobre_mim', label: 'Sobre Mim' },
     { id: 'experiencia_profissional', label: 'Experiência' },
+    { id: 'cursos_extracurriculares', label: 'Cursos' },
     { id: 'formacao', label: 'Formação' },
     { id: 'idiomas', label: 'Idiomas' },
+    { id: 'cidade', label: 'Cidade' },
+
   ];
 
   return (
