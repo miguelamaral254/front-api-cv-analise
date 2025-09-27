@@ -7,10 +7,9 @@ import ListaDeVagas from '../components/md-vagas/ListaDeVagas';
 import VagaDetalhes from '../components/md-vagas/VagaDetalhes';
 import TalentoDetalhesModal from '../components/md-talentos/TalentoDetalhesModal';
 import Filtro from '../components/md-vagas/Filtro';
-// Importações dos novos componentes
 import FiltroSkeleton from '../components/md-vagas/FiltroSkeleton';
 import ListaDeVagasSkeleton from '../components/md-vagas/ListaDeVagasSkeleton';
-
+import LoadingModal from '../components/global/LoadingModal';
 
 const VagasPage = () => {
   const [vagas, setVagas] = useState([]);
@@ -105,8 +104,6 @@ const VagasPage = () => {
     }
   };
 
-  // ----- MODIFICAÇÃO PRINCIPAL AQUI -----
-  // Se estiver carregando e nenhuma vaga estiver selecionada, mostra o esqueleto.
   if (loading && !vagaSelecionada) {
     return (
         <div className="container mx-auto p-4">
@@ -144,11 +141,7 @@ const VagasPage = () => {
               />
             </>
         )}
-        {isTalentoLoading && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-              <p className="text-white text-xl">Carregando detalhes do talento...</p>
-            </div>
-        )}
+        {isTalentoLoading && <LoadingModal />}
         {talentoSelecionado && (
             <TalentoDetalhesModal
                 talento={talentoSelecionado}

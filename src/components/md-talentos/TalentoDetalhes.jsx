@@ -60,23 +60,6 @@ const TalentoDetalhes = ({ talento, onVoltarClick, onTalentoUpdate }) => {
     }
   };
 
-  const handleReprovar = async () => {
-    const result = await fireConfirm(
-        'Reprovar candidato?',
-        'O perfil do candidato será marcado como inativo. Esta ação pode ser revertida pelo administrador.'
-    );
-
-    if (result.isConfirmed) {
-      try {
-        await reprovarCandidato(talento.id);
-        fireToast('success', 'Candidato reprovado com sucesso!');
-        handleRefreshData();
-      } catch (err) {
-        fireError('Erro!', 'Não foi possível reprovar o candidato.');
-      }
-    }
-  };
-
   return (
       <>
         <div className="bg-white shadow-xl rounded-2xl p-6 md:p-10 max-w-7xl w-full mx-auto animate-fade-in">
@@ -110,11 +93,6 @@ const TalentoDetalhes = ({ talento, onVoltarClick, onTalentoUpdate }) => {
               </div>
             </div>
             <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 w-full sm:w-auto flex-shrink-0">
-              {isRecruiter && talento.ativo && (
-                  <button onClick={handleReprovar} className="flex items-center gap-2 bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors whitespace-nowrap text-sm">
-                    <MdThumbDown /> Reprovar
-                  </button>
-              )}
               <button onClick={onVoltarClick} className="flex items-center gap-2 bg-gray-100 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium text-sm">
                 <MdArrowBack /> Voltar
               </button>

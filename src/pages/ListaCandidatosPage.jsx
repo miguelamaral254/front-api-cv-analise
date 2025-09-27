@@ -5,6 +5,7 @@ import { analyzeVaga } from '../services/vagas.service';
 import ListaDeTalentos from '../components/md-talentos/ListaDeTalentos';
 import TalentoDetalhesModal from '../components/md-talentos/TalentoDetalhesModal';
 import FiltroTalentos from '../components/md-talentos/FiltroTalentos';
+import LoadingModal from '../components/global/LoadingModal';
 import { MdArrowBack, MdAnalytics, MdFormatListBulleted } from 'react-icons/md';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
@@ -301,11 +302,8 @@ const ListaCandidatosPage = () => {
                 </div>
             </main>
 
-            {isTalentoLoading && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[60]">
-                    <p className="text-white text-xl animate-pulse">Carregando detalhes do talento...</p>
-                </div>
-            )}
+            {isTalentoLoading && <LoadingModal />}
+
             {talentoSelecionado && (
                 <TalentoDetalhesModal
                     talento={talentoSelecionado}
