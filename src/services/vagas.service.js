@@ -41,9 +41,12 @@ export const updateVaga = async (id, vagaData) => {
     throw error;
   }
 };
-export const finalizeVaga = async (id) => {
+export const finalizeVaga = async (id, finalizadoPorId) => {
   try {
-    await apiClient.post(`${VAGAS_ENDPOINT}/${id}/finalizar`);
+    const payload = {
+      finalizado_por: finalizadoPorId
+    };
+    await apiClient.post(`${VAGAS_ENDPOINT}/${id}/finalizar`, payload);
   } catch (error) {
     console.error('Erro ao finalizar vaga:', error);
     throw error;

@@ -3,6 +3,7 @@ import { useSwal } from '../../hooks/useSwal';
 import { createUser, getRoles } from '../../services/users.service';
 import Select from 'react-select';
 import { PasswordField } from './PasswordField';
+import { useAuth } from '../../hooks/useAuth.js';
 
 const InputField = ({ id, label, ...props }) => (
     <div>
@@ -44,6 +45,7 @@ const PasswordStrengthMeter = ({ password }) => {
 };
 
 export const UserForm = ({ onSuccess }) => {
+    const { user } = useAuth();
     const { fireSuccess, fireError } = useSwal();
     const [roles, setRoles] = useState([]);
     const [isLoadingRoles, setIsLoadingRoles] = useState(true);
@@ -72,9 +74,9 @@ export const UserForm = ({ onSuccess }) => {
         fetchRoles();
     }, []);
 
-    const roleOptions = useMemo(() => 
-        roles.map(role => ({ value: role.id, label: role.nome })), 
-    [roles]);
+    const roleOptions = useMemo(() =>
+            roles.map(role => ({ value: role.id, label: role.nome })),
+        [roles]);
 
     const passwordsMatch = formData.password && formData.password === formData.confirmPassword;
     const isFormValid = formData.nome && formData.email && formData.user_role_id && passwordsMatch && formData.password.length >= 8;
@@ -90,6 +92,9 @@ export const UserForm = ({ onSuccess }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!user || !user.id) {
+            return fireError('Erro de Autenticação', 'Usuário não identificado. Faça login novamente.');
+        }
         if (!isFormValid) {
             return fireError("Formulário Inválido", "Por favor, preencha todos os campos corretamente e garanta que as senhas coincidem.");
         }
@@ -100,6 +105,7 @@ export const UserForm = ({ onSuccess }) => {
                 email: formData.email,
                 password: formData.password,
                 user_role_id: formData.user_role_id,
+                criado_por: user.id,
             };
             await createUser(payload);
             fireSuccess('Sucesso!', 'Usuário criado com sucesso!')

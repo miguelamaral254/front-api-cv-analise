@@ -4,10 +4,13 @@ import { createVaga } from '../services/vagas.service';
 import CamposGeraisVaga from '../components/md-vagas/form/CamposGeraisVaga';
 import GerenciadorCriterios from '../components/md-vagas/form/GerenciadorCriterios';
 import { useSwal } from '../hooks/useSwal';
+import { useAuth } from '../hooks/useAuth.js';
 
 const FormVagasPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { fireSuccess, fireError } = useSwal();
+
   const [formData, setFormData] = useState({
     titulo_vaga: '',
     descricao: '',
@@ -27,6 +30,7 @@ const FormVagasPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // ... (as funções handleInputChange, handleSelectChange, etc. não mudam)
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
@@ -40,8 +44,16 @@ const FormVagasPage = () => {
     setFormData(prev => ({ ...prev, descricao: html }));
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // <--- 3. (Opcional, mas recomendado) Verifique se o usuário existe antes de submeter
+    if (!user || !user.id) {
+      fireError('Erro de Autenticação', 'Não foi possível identificar o usuário. Por favor, faça login novamente.');
+      return;
+    }
+
     if (criterios.some(c => !c.nome || !c.descricao || c.colunas.length === 0)) {
       fireError('Critérios Incompletos', 'Todos os critérios obrigatórios devem ter nome, descrição e pelo menos uma coluna de análise selecionada.');
       return;
@@ -69,6 +81,7 @@ const FormVagasPage = () => {
       area_id: parseInt(formData.area_id),
       criterios_de_analise: criteriosParaApi,
       criterios_diferenciais_de_analise: diferenciaisParaApi,
+      criado_por: user.id, // <--- 4. Adicione o ID do usuário ao payload
     };
 
     try {
@@ -88,6 +101,7 @@ const FormVagasPage = () => {
       <div className="container mx-auto p-4 max-w-4xl">
         <h1 className="text-3xl font-bold mb-6 text-gray-800">Criar Nova Vaga</h1>
         <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md space-y-8">
+          {/* ... (o resto do seu JSX não muda) ... */}
           <CamposGeraisVaga
               formData={formData}
               onInputChange={handleInputChange}

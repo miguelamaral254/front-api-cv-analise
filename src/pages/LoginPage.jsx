@@ -21,8 +21,9 @@ const LoginPage = () => {
     try {
       await login(email, password);
       navigate('/vagas');
-    } catch {
-      setError('Email ou senha incorretos.');
+    } catch (err) {
+      const errorMessage = err.response?.data?.detail || 'Email ou senha incorretos.';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { MdArrowBack, MdBlock, MdCheckCircle, MdEdit, MdSave, MdCancel } from 'react-icons/md';
 import { useSwal } from '../../hooks/useSwal';
 import { updateUserStatus, updateUserRole } from '../../services/users.service';
+import { useAuth } from '../../hooks/useAuth.js';
 
 const UserDetails = ({ user, onVoltarClick, onUserUpdate, availableRoles }) => {
+    const { user: loggedInUser } = useAuth();
     const { fireConfirm, fireToast, fireError } = useSwal();
     const [isUpdating, setIsUpdating] = useState(false);
 
@@ -18,9 +20,12 @@ const UserDetails = ({ user, onVoltarClick, onUserUpdate, availableRoles }) => {
         );
 
         if (result.isConfirmed) {
+            if (!loggedInUser || !loggedInUser.id) {
+                return fireError('Erro de Autenticação', 'Usuário não identificado. Faça login novamente.');
+            }
             setIsUpdating(true);
             try {
-                await updateUserStatus(user.id, newStatus);
+                await updateUserStatus(user.id, newStatus, loggedInUser.id);
                 onUserUpdate({ ...user, is_active: newStatus });
                 fireToast('success', `Usuário ${actionText === 'ativar' ? 'ativado' : 'inativado'} com sucesso!`);
             } catch (err) {
@@ -43,9 +48,12 @@ const UserDetails = ({ user, onVoltarClick, onUserUpdate, availableRoles }) => {
         );
 
         if (result.isConfirmed) {
+            if (!loggedInUser || !loggedInUser.id) {
+                return fireError('Erro de Autenticação', 'Usuário não identificado. Faça login novamente.');
+            }
             setIsUpdating(true);
             try {
-                await updateUserRole(user.id, { role: selectedRole });
+                await updateUserRole(user.id, { role: selectedRole }, loggedInUser.id);
                 onUserUpdate({ ...user, role: selectedRole });
                 fireToast('success', 'Nível de acesso atualizado com sucesso!');
                 setIsEditingRole(false);
@@ -99,6 +107,18 @@ const UserDetails = ({ user, onVoltarClick, onUserUpdate, availableRoles }) => {
                             {user.role}
                         </span>
                     </div>
+                    {user.criado_por_nome && (
+                        <div className="flex items-center">
+                            <strong className="w-40 text-gray-600">Criado por:</strong>
+                            <span className="text-gray-800">{user.criado_por_nome}</span>
+                        </div>
+                    )}
+                    {user.atualizado_por_nome && (
+                        <div className="flex items-center">
+                            <strong className="w-40 text-gray-600">Atualizado por:</strong>
+                            <span className="text-gray-800">{user.atualizado_por_nome}</span>
+                        </div>
+                    )}
                 </div>
 
                 <div className="border-t mt-6 pt-6">
@@ -124,7 +144,6 @@ const UserDetails = ({ user, onVoltarClick, onUserUpdate, availableRoles }) => {
                                 </button>
                             )}
                         </div>
-
                         <div>
                             <h3 className="text-md font-semibold text-gray-700 mb-2">Nível de Acesso</h3>
                             {!isEditingRole ? (

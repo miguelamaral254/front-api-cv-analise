@@ -59,12 +59,16 @@ export const updateUserPassword = async (id, passwordData) => {
   }
 };
 
-export const updateUserStatus = async (id, isActive) => {
+export const updateUserStatus = async (id, isActive, atualizadoPorId) => {
   try {
-    const response = await apiClient.put(
-      `${USERS_ENDPOINT}/${id}/status`,
-      { is_active: isActive }
-    );
+      const payload = {
+          is_active: isActive,
+          atualizado_por: atualizadoPorId
+      };
+      const response = await apiClient.put(
+          `${USERS_ENDPOINT}/${id}/status`,
+          payload
+      );
     return response.data;
   } catch (error) {
     console.error("Erro ao atualizar status do usuário:", error);
@@ -81,11 +85,15 @@ export const getRoles = async () => {
     throw error;
   }
 };
-export const updateUserRole = async (id, roleData) => {
+export const updateUserRole = async (id, roleData, atualizadoPorId) => {
   try {
+      const payload = {
+          ...roleData,
+          atualizado_por: atualizadoPorId
+      };
     const response = await apiClient.put(
         `${USERS_ENDPOINT}/${id}/role`,
-        roleData
+        payload
     );
     return response.data;
   } catch (error) {
