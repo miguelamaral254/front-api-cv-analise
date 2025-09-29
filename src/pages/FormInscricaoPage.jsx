@@ -13,6 +13,8 @@ import InfoVaga from '../components/md-vagas/InfoVaga';
 import * as FaIcons from 'react-icons/fa';
 import socialData from '../data/socials.json';
 import FormInscricaoPageSkeleton from '../components/md-vagas/FormInscricaoPageSkeleton';
+import TermosModal from '../components/global/TermosModal';
+import { termosContent } from '../data/termosContent.jsx';
 
 const FormInscricaoPage = () => {
   const { vagaId } = useParams();
@@ -23,14 +25,15 @@ const FormInscricaoPage = () => {
   const [loading, setLoading] = useState(true);
   const [languageOptions, setLanguageOptions] = useState([]);
 
-  // Adicionando os novos campos de endereço ao estado inicial
   const [formData, setFormData] = useState({
     nome: '', email: '', estado: null, cidade: null, telefone: '', sobre_mim: '',
     cep: '', rua: '', numero: '', complemento: '', bairro: '',
     deficiencia: false,
     aceita_termos: false,
     confirmar_dados_verdadeiros: false,
+    aceitar_uso_ia: false,
   });
+
   const [experiencias, setExperiencias] = useState([]);
   const [formacoes, setFormacoes] = useState([]);
   const [idiomas, setIdiomas] = useState([]);
@@ -42,6 +45,20 @@ const FormInscricaoPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState({ title: '', content: '' });
+
+  const openModal = (tipo) => {
+    if (termosContent[tipo]) {
+      setModalData(termosContent[tipo]);
+      setIsModalOpen(true);
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   const socialOptions = socialData.map(social => {
     const IconComponent = FaIcons[social.icon];
@@ -101,8 +118,8 @@ const FormInscricaoPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.aceita_termos || !formData.confirmar_dados_verdadeiros) {
-      fireError("Atenção", "Você precisa aceitar os termos e confirmar a veracidade dos dados para continuar.");
+    if (!formData.aceita_termos || !formData.confirmar_dados_verdadeiros || !formData.aceitar_uso_ia) {
+      fireError("Atenção", "Você precisa aceitar todos os termos e confirmações para continuar.");
       return;
     }
     setError(null);
@@ -235,9 +252,19 @@ const FormInscricaoPage = () => {
                   <input type="checkbox" name="confirmar_dados_verdadeiros" checked={formData.confirmar_dados_verdadeiros} onChange={handleInputChange} className="h-4 w-4 mt-1 rounded border-gray-300" required/>
                   <span className="ml-2 block text-sm text-gray-900">Confirmo que todas as informações fornecidas neste formulário são verdadeiras e precisas.*</span>
                 </label>
-                <label className="flex items-start">
-                  <input type="checkbox" name="aceita_termos" checked={formData.aceita_termos} onChange={handleInputChange} className="h-4 w-4 mt-1 rounded border-gray-300" required/>
-                  <span className="ml-2 block text-sm text-gray-900">Eu aceito os termos e a política de privacidade da Cognvox.*</span>
+                <label className="flex items-center">
+                  <input type="checkbox" name="aceita_termos" checked={formData.aceita_termos} onChange={handleInputChange} className="h-4 w-4 rounded border-gray-300" required/>
+                  <div className="ml-2 flex items-center">
+                    <span className="block text-sm text-gray-900">Eu aceito os termos e a política de privacidade da Cognvox.*</span>
+                    <button type="button" onClick={() => openModal('politica')} className="text-blue-600 underline hover:text-blue-800 ml-2 text-sm font-semibold">Ler termos</button>
+                  </div>
+                </label>
+                <label className="flex items-center">
+                  <input type="checkbox" name="aceitar_uso_ia" checked={formData.aceitar_uso_ia} onChange={handleInputChange} className="h-4 w-4 rounded border-gray-300" required/>
+                  <div className="ml-2 flex items-center">
+                    <span className="block text-sm text-gray-900">Eu concordo com a utilização dos meus dados em processos de análise por Inteligência Artificial.*</span>
+                    <button type="button" onClick={() => openModal('ia')} className="text-blue-600 underline hover:text-blue-800 ml-2 text-sm font-semibold">Ler termos</button>
+                  </div>
                 </label>
                 <div className="text-right">
                   <button type="submit" disabled={isSubmitting} className="bg-green-600 text-white font-bold px-8 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400">
@@ -248,9 +275,15 @@ const FormInscricaoPage = () => {
             </form>
           </div>
         </div>
+        <TermosModal
+            isOpen={isModalOpen}
+            onClose={closeModal}
+            title={modalData.title}
+        >
+          {modalData.content}
+        </TermosModal>
       </div>
   );
 };
 
 export default FormInscricaoPage;
-
